@@ -1,0 +1,19 @@
+# Ignore sensitive config
+appsettings.json
+appsettings.*.json
+
+# User secrets and IDE config
+*.user
+*.suo
+.vscode/
+.idea/
+.vs/        
+
+# Build and publish output
+bin/
+obj/
+out/
+
+# Others
+*.log
+.env
