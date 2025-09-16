@@ -1,4 +1,4 @@
-using ERP.Helpers.JWT;
+﻿using ERP.Helpers.JWT;
 using ERP.Models;
 using ERP.Repositories;
 using ERP.Repositories.Interfaces;
@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,7 +20,44 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+#region Swagger
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "ERP API",
+        Version = "v1", // 🔧 THIS ensures OpenAPI version 3.x is generated
+        Description = "ERP Backend API"
+    });
 
+    // ✅ JWT Bearer setup for Swagger UI "Authorize" button
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Enter 'Bearer {token}'"
+    });
+
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] { }
+        }
+    });
+});
+
+#endregion
 
 #region DB SQLServer
 builder.Services.AddDbContext<ERPDBContext>(options =>
@@ -74,6 +112,14 @@ builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddScoped<IErrorRepository, ErrorRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService,UserService>();
+builder.Services.AddScoped<IPartnerRepository, PartnerRepository>();
+builder.Services.AddScoped<IPartnerService, PartnerService>();
+builder.Services.AddScoped<IBrokerRepository, BrokerRepository>();
+builder.Services.AddScoped<IBrokerService, BrokerService>();
+
+
+
+
 #endregion
 
 var app = builder.Build();

@@ -1,11 +1,27 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using ERP.Models.Brokers;
+using ERP.Models.Partners;
+using ERP.Models.Projects;
+using Microsoft.EntityFrameworkCore;
 
 namespace ERP.Models
 {
     public class ERPDBContext : DbContext
     {
+        #region Tables
         public DbSet<User> Users { get; set; }
         public DbSet<Error> Errors { get; set; }
+        public DbSet<Partner> Partners { get; set; }
+        public DbSet<PartnerTransaction> PartnerTransactions { get; set; }
+        public DbSet<Broker> Brokers { get; set; }
+        public DbSet<BrokerComission> brokerComissions { get; set; }
+        public DbSet<Project> Projects { get; set; }
+
+
+
+
+
+        #endregion
+
 
         public ERPDBContext() : base() { }
         public ERPDBContext(DbContextOptions<ERPDBContext> options) : base(options) { }

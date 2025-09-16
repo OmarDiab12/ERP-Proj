@@ -1,11 +1,8 @@
 ﻿using Azure;
-using ERP.DTOs;
 using ERP.DTOs.User;
 using ERP.Helpers.JWT;
 using ERP.Models;
-using ERP.Repositories;
-using ERP.Repositories.Interfaces;
-using ERP.Services.Interfaces;
+
 using Microsoft.AspNetCore.Identity;
 
 namespace ERP.Services
@@ -71,8 +68,8 @@ namespace ERP.Services
                 if (user is null)
                     return new ResponseDTO { IsValid = false, Message = "Invalid credentials" };
 
-                var check = _hasher.VerifyHashedPassword(user, user.PasswordHash, dto.Password);
-                if (check == PasswordVerificationResult.Failed)
+                var check = BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash);
+                if (!check)
                     return new ResponseDTO { IsValid = false, Message = "Invalid credentials" };
 
                 var token = _jwt.GenerateToken(user);
