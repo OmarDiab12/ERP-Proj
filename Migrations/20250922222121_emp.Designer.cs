@@ -4,6 +4,7 @@ using ERP.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ERP.Migrations
 {
     [DbContext(typeof(ERPDBContext))]
-    partial class ERPDBContextModelSnapshot : ModelSnapshot
+    [Migration("20250922222121_emp")]
+    partial class emp
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -375,6 +378,9 @@ namespace ERP.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
+                    b.Property<int?>("ProjectId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("TransactionDate")
                         .HasColumnType("datetime2");
 
@@ -390,6 +396,8 @@ namespace ERP.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("EmployeeId");
+
+                    b.HasIndex("ProjectId");
 
                     b.ToTable("EmployeesTransactions");
                 });
@@ -423,49 +431,6 @@ namespace ERP.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Errors");
-                });
-
-            modelBuilder.Entity("ERP.Models.OperationalExpense", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<decimal>("Amount")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("Category")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("CreatedBy")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("ExpenseDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("UpdatedBy")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("OperationalExpenses");
                 });
 
             modelBuilder.Entity("ERP.Models.Partners.Partner", b =>
@@ -552,54 +517,6 @@ namespace ERP.Migrations
                     b.ToTable("PartnerTransactions");
                 });
 
-            modelBuilder.Entity("ERP.Models.PersonalLoan", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<decimal>("Amount")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("CreatedBy")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsRepaid")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("IssueDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("LastReminderSent")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("PersonName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("RepaymentDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("UpdatedBy")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("PersonalLoans");
-                });
-
             modelBuilder.Entity("ERP.Models.Projects.Project", b =>
                 {
                     b.Property<int>("Id")
@@ -631,107 +548,6 @@ namespace ERP.Migrations
                     b.HasIndex("ClientId");
 
                     b.ToTable("Projects");
-                });
-
-            modelBuilder.Entity("ERP.Models.QoutationManagement.Quotation", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("ClientId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("CreatedBy")
-                        .HasColumnType("int");
-
-                    b.Property<string>("GeneralNotes")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("QuotationDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal>("TotalAmount")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("UpdatedBy")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ClientId");
-
-                    b.ToTable("Quotations");
-                });
-
-            modelBuilder.Entity("ERP.Models.QoutationManagement.QuotationItem", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("CreatedBy")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal>("DiscountPercentage")
-                        .HasPrecision(5, 2)
-                        .HasColumnType("decimal(5,2)");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("ItemNotes")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal>("Quantity")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("QuotationId")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("UnitPrice")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("UpdatedBy")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("QuotationId");
-
-                    b.ToTable("QuotationItems");
                 });
 
             modelBuilder.Entity("ERP.Models.User", b =>
@@ -786,15 +602,15 @@ namespace ERP.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2025, 9, 22, 23, 33, 6, 517, DateTimeKind.Utc).AddTicks(705),
+                            CreatedAt = new DateTime(2025, 9, 22, 22, 21, 21, 19, DateTimeKind.Utc).AddTicks(8944),
                             CreatedBy = 0,
                             DisplayName = "Admin",
                             Email = "admin@erp.com",
                             FullName = "System Admin",
                             IsDeleted = false,
-                            PasswordHash = "$2a$11$gjaF3tpB4RCxOrCL2MyTxOR9Z9IadGA/BPw4/Z/KaW21yopIeQuR2",
+                            PasswordHash = "$2a$11$bE2WLGoS2TRw10R/EW8uQuIcB5bG8SGpcqU2qxti4BGEctjMGAUMO",
                             PhoneNumber = "",
-                            UpdatedAt = new DateTime(2025, 9, 22, 23, 33, 6, 517, DateTimeKind.Utc).AddTicks(708),
+                            UpdatedAt = new DateTime(2025, 9, 22, 22, 21, 21, 19, DateTimeKind.Utc).AddTicks(8949),
                             UpdatedBy = 0
                         });
                 });
@@ -862,7 +678,13 @@ namespace ERP.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("ERP.Models.Projects.Project", "Project")
+                        .WithMany()
+                        .HasForeignKey("ProjectId");
+
                     b.Navigation("Employee");
+
+                    b.Navigation("Project");
                 });
 
             modelBuilder.Entity("ERP.Models.Partners.PartnerTransaction", b =>
@@ -883,28 +705,6 @@ namespace ERP.Migrations
                         .HasForeignKey("ClientId");
                 });
 
-            modelBuilder.Entity("ERP.Models.QoutationManagement.Quotation", b =>
-                {
-                    b.HasOne("ERP.Models.ClientsManagement.Client", "Client")
-                        .WithMany("Quotations")
-                        .HasForeignKey("ClientId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Client");
-                });
-
-            modelBuilder.Entity("ERP.Models.QoutationManagement.QuotationItem", b =>
-                {
-                    b.HasOne("ERP.Models.QoutationManagement.Quotation", "Quotation")
-                        .WithMany("QuotationItems")
-                        .HasForeignKey("QuotationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Quotation");
-                });
-
             modelBuilder.Entity("ERP.Models.Brokers.Broker", b =>
                 {
                     b.Navigation("Comissions");
@@ -915,8 +715,6 @@ namespace ERP.Migrations
                     b.Navigation("AccountStatements");
 
                     b.Navigation("Projects");
-
-                    b.Navigation("Quotations");
                 });
 
             modelBuilder.Entity("ERP.Models.ContractorsManagement.Contractor", b =>
@@ -941,11 +739,6 @@ namespace ERP.Migrations
                     b.Navigation("ClientAccountStatements");
 
                     b.Navigation("ContractOfContracts");
-                });
-
-            modelBuilder.Entity("ERP.Models.QoutationManagement.Quotation", b =>
-                {
-                    b.Navigation("QuotationItems");
                 });
 #pragma warning restore 612, 618
         }

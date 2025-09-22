@@ -66,5 +66,11 @@ namespace ERP.Repositories
             await _context.SaveChangesAsync();
             return true;
         }
+
+        public IQueryable<T> Query()
+        {
+            return _context.Set<T>().AsQueryable();
+        }
+
     }
 }

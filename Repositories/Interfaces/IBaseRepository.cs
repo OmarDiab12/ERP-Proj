@@ -7,5 +7,6 @@
         Task<T> CreateAsync(T entity, int createdBy);
         Task<bool> UpdateAsync(T entity, int updatedBy);
         Task<bool> SoftDeleteAsync(int id, int updatedBy);
+        IQueryable<T> Query();
     }
 }

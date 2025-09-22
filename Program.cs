@@ -107,6 +107,8 @@ builder.Services.AddCors(options =>
 
 #region DI
 
+//builder.Services.AddHttpContextAccessor();
+
 builder.Services.AddScoped<IJWTHelper, JWTHelper>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddScoped<IErrorRepository, ErrorRepository>();
@@ -116,8 +118,16 @@ builder.Services.AddScoped<IPartnerRepository, PartnerRepository>();
 builder.Services.AddScoped<IPartnerService, PartnerService>();
 builder.Services.AddScoped<IBrokerRepository, BrokerRepository>();
 builder.Services.AddScoped<IBrokerService, BrokerService>();
-
-
+builder.Services.AddScoped<IContractorService, ContractorService>();
+builder.Services.AddScoped<IContractorRepository, ContractorRepository>();
+builder.Services.AddScoped<IClientRepository, ClientRepository>();
+builder.Services.AddScoped<IClientService, ClientService>();
+builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
+builder.Services.AddScoped<IEmployeeService, EmployeeService>();
+builder.Services.AddScoped<IOperationalExpensesService, OperationalExpensesService>();
+builder.Services.AddScoped<IOperationalExpensesRepository, OperationalExpensesRepository>();
+builder.Services.AddScoped<IPersonalLoanService, PersonalLoanService>();
+builder.Services.AddScoped<IPersonalLoansRepository, PersonalLoansRepository>();
 
 
 #endregion

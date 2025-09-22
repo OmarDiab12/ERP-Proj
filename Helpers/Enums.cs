@@ -7,5 +7,13 @@
             CapitalAddition,
             Withdrawl
         }
+
+        public enum TransactionType
+        {
+            Salary, 
+            Advance, 
+            Deduction,
+            Bonus
+        }
     }
 }
