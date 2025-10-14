@@ -15,5 +15,13 @@
             Deduction,
             Bonus
         }
+
+        public enum QuotationStatus
+        {
+            Draft,
+            Sent,
+            Accepted,
+            Rejected
+        }
     }
 }

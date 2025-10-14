@@ -128,7 +128,9 @@ builder.Services.AddScoped<IOperationalExpensesService, OperationalExpensesServi
 builder.Services.AddScoped<IOperationalExpensesRepository, OperationalExpensesRepository>();
 builder.Services.AddScoped<IPersonalLoanService, PersonalLoanService>();
 builder.Services.AddScoped<IPersonalLoansRepository, PersonalLoansRepository>();
-
+builder.Services.AddScoped<IQuotationItemRepository, QuotationItemRepository>();
+builder.Services.AddScoped<IQuotationRepository, QuotationRepository>();
+builder.Services.AddScoped<IQuotationService, QuotationService>();
 
 #endregion
 

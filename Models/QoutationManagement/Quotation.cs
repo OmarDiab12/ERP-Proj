@@ -15,7 +15,7 @@ namespace ERP.Models.QoutationManagement
         public DateTime QuotationDate { get; set; }
 
         // A status to track the quote's state (e.g., "Draft," "Sent," "Accepted," "Rejected").
-        public string Status { get; set; }
+        public QuotationStatus Status { get; set; }
 
         // The total price of the quote after all discounts.
         [Precision(18, 2)]
