@@ -22,6 +22,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Services\Interfaces\ProjectManagement\" />
+    <Folder Include="Services\ProjectManagement\" />
     <Folder Include="wwwroot\" />
   </ItemGroup>
 

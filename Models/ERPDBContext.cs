@@ -4,6 +4,7 @@ using ERP.Models.ContractorsManagement;
 using ERP.Models.Employees;
 using ERP.Models.Partners;
 using ERP.Models.Projects;
+using ERP.Models.ProjectsManagement;
 using ERP.Models.QoutationManagement;
 using Microsoft.EntityFrameworkCore;
 
@@ -29,7 +30,11 @@ namespace ERP.Models
         public DbSet<PersonalLoan> PersonalLoans { get; set; }
         public DbSet<Quotation> Quotations { get; set; }
         public DbSet<QuotationItem> QuotationItems { get; set; }
-
+        public DbSet<ProjectAttachment> ProjectAttachments { get; set; }
+        public DbSet<ProjectExpense> ProjectExpenses { get; set; }
+        public DbSet<ProjectPayment>  ProjectPayments { get; set; }
+        public DbSet<ProjectProfitShare> ProjectProfitShares { get; set; }
+        public DbSet<ProjectTask> ProjectTasks { get; set; }
 
         #endregion
 

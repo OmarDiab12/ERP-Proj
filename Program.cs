@@ -1,9 +1,17 @@
 ﻿using ERP.Helpers.JWT;
 using ERP.Models;
 using ERP.Repositories;
-using ERP.Repositories.Interfaces;
+using ERP.Repositories.Interfaces.Persons;
+using ERP.Repositories.Interfaces.ProjectsManagement;
+using ERP.Repositories.Interfaces.QuotationManagement;
+using ERP.Repositories.Persons;
+using ERP.Repositories.ProjectManagement;
+using ERP.Repositories.QuotationManagement;
 using ERP.Services;
-using ERP.Services.Interfaces;
+using ERP.Services.Interfaces.Persons;
+using ERP.Services.Interfaces.QuotationManagement;
+using ERP.Services.Persons;
+using ERP.Services.QuotationManagement;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -131,6 +139,12 @@ builder.Services.AddScoped<IPersonalLoansRepository, PersonalLoansRepository>();
 builder.Services.AddScoped<IQuotationItemRepository, QuotationItemRepository>();
 builder.Services.AddScoped<IQuotationRepository, QuotationRepository>();
 builder.Services.AddScoped<IQuotationService, QuotationService>();
+builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
+builder.Services.AddScoped<IProjectExpenseRepository, ProjectExpenseRepository>();
+builder.Services.AddScoped<IProjectPaymentRepository, ProjectPaymentRepository>();
+builder.Services.AddScoped<IProjectTaskRepository, ProjectTaskRepository>();
+builder.Services.AddScoped<IProjectAttachmentRepository, ProjectAttachmentRepository>();
+builder.Services.AddScoped<IProjectProfitShareRepository, ProjectProfitShareRepository>();
 
 #endregion
 

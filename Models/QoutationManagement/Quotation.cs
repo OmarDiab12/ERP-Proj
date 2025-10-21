@@ -1,4 +1,5 @@
 ﻿using ERP.Models.ClientsManagement;
+using ERP.Models.Projects;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -26,5 +27,8 @@ namespace ERP.Models.QoutationManagement
 
         // Navigation property to hold all the individual items in this quote.
         public virtual ICollection<QuotationItem> QuotationItems { get; set; } = new List<QuotationItem>();
+        [ForeignKey(nameof(Project))]
+        public int projectId { get; set; }
+        public virtual Project Project { get; set; }
     }
 }

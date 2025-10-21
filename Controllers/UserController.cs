@@ -1,5 +1,5 @@
 ﻿using ERP.DTOs.User;
-using ERP.Services.Interfaces;
+using ERP.Services.Interfaces.Persons;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
