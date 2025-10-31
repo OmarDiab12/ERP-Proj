@@ -7,7 +7,7 @@
         public int ClientId { get; set; }
         public int? BrokerId { get; set; }
         public int QuotationId { get; set; }
-        public string StartDate { get; set; } = DateTime.UtcNow.;
+        public string StartDate { get; set; } = DateTime.UtcNow.ToString("yyyy-MM-dd");
     }
 
     public class ProjectUpdateDto

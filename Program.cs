@@ -145,7 +145,7 @@ builder.Services.AddScoped<IProjectPaymentRepository, ProjectPaymentRepository>(
 builder.Services.AddScoped<IProjectTaskRepository, ProjectTaskRepository>();
 builder.Services.AddScoped<IProjectAttachmentRepository, ProjectAttachmentRepository>();
 builder.Services.AddScoped<IProjectProfitShareRepository, ProjectProfitShareRepository>();
-
+builder.Services.AddScoped<IQuotaionAttachementRepository , QuotaionAttachementRepository>();
 #endregion
 
 var app = builder.Build();

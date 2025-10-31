@@ -14,6 +14,7 @@ namespace ERP.Models.QoutationManagement
 
         // Date the quotation was created.
         public DateTime QuotationDate { get; set; }
+        public DateTime IsValidTo { get; set; }
 
         // A status to track the quote's state (e.g., "Draft," "Sent," "Accepted," "Rejected").
         public QuotationStatus Status { get; set; }
@@ -21,14 +22,17 @@ namespace ERP.Models.QoutationManagement
         // The total price of the quote after all discounts.
         [Precision(18, 2)]
         public decimal TotalAmount { get; set; }
+        public string Description { get; set; }
 
         // Optional notes for the entire quotation.
         public string GeneralNotes { get; set; }
 
         // Navigation property to hold all the individual items in this quote.
         public virtual ICollection<QuotationItem> QuotationItems { get; set; } = new List<QuotationItem>();
+        public virtual ICollection<QuotationAttachement> QuotationAttachements { get; set; } = new List<QuotationAttachement>();
+
         [ForeignKey(nameof(Project))]
-        public int projectId { get; set; }
+        public int? projectId { get; set; }
         public virtual Project Project { get; set; }
     }
 }

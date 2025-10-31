@@ -14,8 +14,10 @@
     {
         public int ClientId { get; set; }
         public string QuotationDate { get; set; } = string.Empty; // "yyyy-MM-dd"
+        public string isValidTo { get; set; } = string.Empty; // "yyyy-MM-dd"
         public string Status { get; set; } = "Draft";
         public string? GeneralNotes { get; set; }
+        public List<IFormFile> files { get; set; } = new List<IFormFile>();
         public List<CreateQuotationItemDTO> Items { get; set; } = new();
     }
 
@@ -46,13 +48,25 @@
         public int Id { get; set; }
         public int ClientId { get; set; }
         public string QuotationDate { get; set; } = string.Empty;
+        public string isValidTo { get; set; } = string.Empty;
         public string Status { get; set; } = string.Empty;
         public decimal TotalAmount { get; set; }
+        public List<QuotationAttachmentDTO> files { get; set; } = new List<QuotationAttachmentDTO>();
+
+
     }
 
     public class QuotationDTO : QuotationBasicDTO
     {
         public string? GeneralNotes { get; set; }
         public List<QuotationItemDTO> Items { get; set; } = new();
+    }
+
+    public class QuotationAttachmentDTO
+    {
+        public int Id { get; set; }
+        public string FileName { get; set; }  // Original uploaded name
+        public string FilePath { get; set; }  // Physical or relative path
+        public string UploadedAt { get; set; }
     }
 }

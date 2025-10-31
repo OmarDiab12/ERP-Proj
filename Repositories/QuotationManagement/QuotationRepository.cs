@@ -7,6 +7,14 @@ namespace ERP.Repositories.QuotationManagement
     public class QuotationRepository : BaseRepository<Quotation>, IQuotationRepository
     {
         public QuotationRepository(ERPDBContext context) : base(context) { }
+
+        public bool ChangeStatus(int quotationId ,QuotationStatus status)
+        {
+            var q = _context.Quotations.Where(c=>c.Id == quotationId).FirstOrDefault();
+            q.Status = status;
+            _context.SaveChangesAsync();
+            return true;
+        }
         
     }
 }

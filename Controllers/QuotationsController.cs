@@ -20,7 +20,7 @@ namespace ERP.Controllers
         }
 
         [HttpPost("create")]
-        public async Task<IActionResult> Create([FromBody] CreateQuotationDTO dto)
+        public async Task<IActionResult> Create([FromForm] CreateQuotationDTO dto)
         {
             var userId = User.GetUserId() ?? 0;
             if (!ModelState.IsValid)
@@ -29,9 +29,9 @@ namespace ERP.Controllers
             var res = await _service.CreateAsync(dto, userId);
             return res.IsValid ? Ok(res) : BadRequest(res);
         }
-
+        [ApiExplorerSettings(IgnoreApi = true)]
         [HttpPost("edit")]
-        public async Task<IActionResult> Edit([FromBody] EditQuotationDTO dto)
+        public async Task<IActionResult> Edit([FromForm] EditQuotationDTO dto)
         {
             var userId = User.GetUserId() ?? 0;
             if (!ModelState.IsValid)
@@ -40,6 +40,7 @@ namespace ERP.Controllers
             var res = await _service.EditAsync(dto, userId);
             return res.IsValid ? Ok(res) : BadRequest(res);
         }
+
 
         [HttpPost("delete-{id:int}")]
         public async Task<IActionResult> Delete(int id)

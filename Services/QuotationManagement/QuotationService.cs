@@ -2,6 +2,7 @@
 using ERP.Models.QoutationManagement;
 using ERP.Repositories.Interfaces.QuotationManagement;
 using ERP.Services.Interfaces.QuotationManagement;
+using Microsoft.EntityFrameworkCore;
 
 namespace ERP.Services.QuotationManagement
 {
@@ -9,15 +10,21 @@ namespace ERP.Services.QuotationManagement
     {
         private readonly IQuotationRepository _quotationRepo;
         private readonly IQuotationItemRepository _itemRepo;
+        private readonly IQuotaionAttachementRepository _attachementRepository;
+        private readonly IConfiguration _config;
         private readonly IErrorRepository _errors;
 
         public QuotationService(
             IQuotationRepository quotationRepo,
             IQuotationItemRepository itemRepo,
+            IQuotaionAttachementRepository attachementRepository,
+            IConfiguration configuration,
             IErrorRepository errors)
         {
             _quotationRepo = quotationRepo;
             _itemRepo = itemRepo;
+            _attachementRepository = attachementRepository;
+            _config = configuration;
             _errors = errors;
         }
 
@@ -44,10 +51,13 @@ namespace ERP.Services.QuotationManagement
                 if (!DateTime.TryParse(dto.QuotationDate, out var qDate))
                     return new ResponseDTO { IsValid = false, Message = "Invalid QuotationDate" };
 
+                if (!DateTime.TryParse(dto.isValidTo, out var qvalidDate))
+                    return new ResponseDTO { IsValid = false, Message = "Invalid IsValidTo" };
                 var entity = new Quotation
                 {
                     ClientId = dto.ClientId,
                     QuotationDate = qDate,
+                    IsValidTo = qvalidDate,
                     Status = Enum.TryParse<QuotationStatus>(dto.Status, true, out var st) ? st : QuotationStatus.Draft,
                     GeneralNotes = dto.GeneralNotes ?? string.Empty,
                     TotalAmount = 0m
@@ -81,6 +91,36 @@ namespace ERP.Services.QuotationManagement
                 entity.TotalAmount = Math.Round(total, 2);
                 await _quotationRepo.UpdateAsync(entity, userId);
 
+                if (dto.files != null && dto.files.Any())
+                {
+                    string basePath = _config["StoragePath"];
+                    string quotationFolder = Path.Combine(basePath, $"Quotation_{entity.Id}");
+
+                    if (!Directory.Exists(quotationFolder))
+                        Directory.CreateDirectory(quotationFolder);
+
+                    foreach (var file in dto.files)
+                    {
+                        string uniqueFileName = $"{Guid.NewGuid()}_{Path.GetFileName(file.FileName)}";
+                        string fullPath = Path.Combine(quotationFolder, uniqueFileName);
+
+                        using (var stream = new FileStream(fullPath, FileMode.Create))
+                        {
+                            await file.CopyToAsync(stream);
+                        }
+
+                        var attachment = new QuotationAttachement
+                        {
+                            QuotationId = entity.Id,
+                            fileName = file.FileName,
+                            filePath = fullPath,
+                            CreatedAt = DateTime.UtcNow
+                        };
+
+                        await _attachementRepository.CreateAsync(attachment, userId);
+                    }
+                }
+
                 return new ResponseDTO { IsValid = true, Data = entity.Id, Message = "Quotation created" };
             }
             catch (Exception ex)
@@ -102,8 +142,12 @@ namespace ERP.Services.QuotationManagement
                 if (!DateTime.TryParse(dto.QuotationDate, out var qDate))
                     return new ResponseDTO { IsValid = false, Message = "Invalid QuotationDate" };
 
+                if (!DateTime.TryParse(dto.isValidTo, out var qvalidDate))
+                    return new ResponseDTO { IsValid = false, Message = "Invalid IsValidTo" };
+
                 entity.ClientId = dto.ClientId;
                 entity.QuotationDate = qDate;
+                entity.IsValidTo = qvalidDate;
                 entity.Status = Enum.TryParse<QuotationStatus>(dto.Status, true, out var st) ? st : entity.Status;
                 entity.GeneralNotes = dto.GeneralNotes ?? string.Empty;
 
@@ -132,7 +176,43 @@ namespace ERP.Services.QuotationManagement
                 // update total
                 entity.TotalAmount = Math.Round(total, 2);
                 await _quotationRepo.UpdateAsync(entity , userId);
+                await _attachementRepository.DeleteByQuotationIdAsync(entity.Id);
+                if (dto.files != null && dto.files.Any())
+                {
+                    string basePath = _config["StoragePath"];
+                    string quotationFolder = Path.Combine(basePath, $"Quotation_{entity.Id}");
 
+                    // 🧨 Delete existing folder if it exists
+                    if (Directory.Exists(quotationFolder))
+                    {
+                        Directory.Delete(quotationFolder, recursive: true);
+                    }
+
+                    // 🆕 Recreate clean folder
+                    Directory.CreateDirectory(quotationFolder);
+
+                    // Save all new files
+                    foreach (var file in dto.files)
+                    {
+                        string uniqueFileName = $"{Guid.NewGuid()}_{Path.GetFileName(file.FileName)}";
+                        string fullPath = Path.Combine(quotationFolder, uniqueFileName);
+
+                        using (var stream = new FileStream(fullPath, FileMode.Create))
+                        {
+                            await file.CopyToAsync(stream);
+                        }
+
+                        var attachment = new QuotationAttachement
+                        {
+                            QuotationId = entity.Id,
+                            filePath = file.FileName,
+                            fileName = fullPath,
+                            CreatedAt = DateTime.UtcNow
+                        };
+
+                        await _attachementRepository.CreateAsync(attachment, userId);
+                    }
+                }
 
                 return new ResponseDTO { IsValid = true, Message = "Quotation updated" };
             }
@@ -153,7 +233,7 @@ namespace ERP.Services.QuotationManagement
 
                 // delete items first
                 await _itemRepo.DeleteByQuotationIdAsync(id);
-
+                await _attachementRepository.DeleteByQuotationIdAsync(id);
                 await _quotationRepo.SoftDeleteAsync(id , userId);
 
                 return new ResponseDTO { IsValid = true, Message = "Quotation deleted" };
@@ -171,16 +251,23 @@ namespace ERP.Services.QuotationManagement
             try
             {
                 var q = await _quotationRepo.GetByIdAsync(id);
-                if (q == null) return new ResponseDTO { IsValid = false, Message = "Quotation not found" };
+                if (q == null)
+                    return new ResponseDTO { IsValid = false, Message = "Quotation not found" };
 
-                // load items
+                // Load items
                 var items = await _itemRepo.GetByQuotationIdAsync(q.Id);
+
+                // Load attachments
+                var attachments = await _attachementRepository.Query()
+                    .Where(a => a.QuotationId == q.Id && !a.IsDeleted)
+                    .ToListAsync();
 
                 var dto = new QuotationDTO
                 {
                     Id = q.Id,
                     ClientId = q.ClientId,
                     QuotationDate = q.QuotationDate.ToString("yyyy-MM-dd"),
+                    isValidTo = q.IsValidTo.ToString("yyyy-MM-dd"),
                     Status = q.Status.ToString(),
                     TotalAmount = q.TotalAmount,
                     GeneralNotes = q.GeneralNotes
@@ -197,14 +284,31 @@ namespace ERP.Services.QuotationManagement
                     ItemNotes = it.ItemNotes
                 }).ToList();
 
-                return new ResponseDTO { IsValid = true, Data = dto };
+                dto.files = attachments.Select(a => new QuotationAttachmentDTO
+                {
+                    Id = a.Id,
+                    FileName = a.fileName,
+                    FilePath = a.filePath,
+                    UploadedAt = a.CreatedAt.ToString("yyyy-MM-dd")
+                }).ToList();
+
+                return new ResponseDTO
+                {
+                    IsValid = true,
+                    Data = dto
+                };
             }
             catch (Exception ex)
             {
                 await _errors.LogErrorAsync(ex.Message, fn, ex.StackTrace ?? "", 0);
-                return new ResponseDTO { IsValid = false, Message = "Unexpected error while fetching quotation" };
+                return new ResponseDTO
+                {
+                    IsValid = false,
+                    Message = "Unexpected error while fetching quotation"
+                };
             }
         }
+
 
         public async Task<ResponseDTO> GetAllAsync()
         {
@@ -218,6 +322,7 @@ namespace ERP.Services.QuotationManagement
                     Id = q.Id,
                     ClientId = q.ClientId,
                     QuotationDate = q.QuotationDate.ToString("yyyy-MM-dd"),
+                    isValidTo = q.IsValidTo.ToString("yyyy-MM-dd"),
                     Status = q.Status.ToString(),
                     TotalAmount = q.TotalAmount
                 }).ToList();
