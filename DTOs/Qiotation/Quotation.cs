@@ -17,6 +17,7 @@
         public string isValidTo { get; set; } = string.Empty; // "yyyy-MM-dd"
         public string Status { get; set; } = "Draft";
         public string? GeneralNotes { get; set; }
+        public string Description { get; set; } = string.Empty;
         public List<IFormFile> files { get; set; } = new List<IFormFile>();
         public List<CreateQuotationItemDTO> Items { get; set; } = new();
     }

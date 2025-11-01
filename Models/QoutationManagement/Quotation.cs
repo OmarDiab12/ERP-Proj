@@ -21,11 +21,11 @@ namespace ERP.Models.QoutationManagement
 
         // The total price of the quote after all discounts.
         [Precision(18, 2)]
-        public decimal TotalAmount { get; set; }
-        public string Description { get; set; }
+        public decimal TotalAmount { get; set; }  
+        public string Description { get; set; } = string.Empty;
 
         // Optional notes for the entire quotation.
-        public string GeneralNotes { get; set; }
+        public string GeneralNotes { get; set; } = string.Empty;
 
         // Navigation property to hold all the individual items in this quote.
         public virtual ICollection<QuotationItem> QuotationItems { get; set; } = new List<QuotationItem>();

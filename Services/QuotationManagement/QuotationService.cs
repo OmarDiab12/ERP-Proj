@@ -60,7 +60,9 @@ namespace ERP.Services.QuotationManagement
                     IsValidTo = qvalidDate,
                     Status = Enum.TryParse<QuotationStatus>(dto.Status, true, out var st) ? st : QuotationStatus.Draft,
                     GeneralNotes = dto.GeneralNotes ?? string.Empty,
-                    TotalAmount = 0m
+                    TotalAmount = 0m,
+                    Description = dto.Description
+                   
                 };
 
                 // create quotation first
