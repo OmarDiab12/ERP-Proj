@@ -10,6 +10,8 @@ namespace ERP.Models
         public decimal Amount { get; set; }
         public DateTime ExpenseDate { get; set; }
         public string Category { get; set; }
+        public string fileName { get; set; }
+        public string filePath { get; set; }
 
     }
 }

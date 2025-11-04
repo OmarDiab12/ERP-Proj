@@ -6,6 +6,7 @@
         public decimal Amount { get; set; }
         public string ExpenseDate { get; set; } = string.Empty;
         public string Category { get; set; } = string.Empty;
+        public IFormFile? File { get; set; }
     }
 
     public class EditOperationalExpenseDTO : CreateOperationalExpenseDTO
@@ -20,6 +21,8 @@
         public decimal Amount { get; set; }
         public string ExpenseDate { get; set; } = string.Empty; 
         public string Category { get; set; } = string.Empty;
+        public string filepath {  get; set; } = string.Empty;
+        public string fileName {  get; set; } = string.Empty;
     }
 
     public class ExpenseRangeRequestDTO

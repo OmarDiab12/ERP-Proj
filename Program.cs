@@ -1,4 +1,5 @@
-﻿using ERP.Helpers.JWT;
+﻿using ERP.Helpers;
+using ERP.Helpers.JWT;
 using ERP.Models;
 using ERP.Repositories;
 using ERP.Repositories.Interfaces.Persons;
@@ -9,8 +10,10 @@ using ERP.Repositories.ProjectManagement;
 using ERP.Repositories.QuotationManagement;
 using ERP.Services;
 using ERP.Services.Interfaces.Persons;
+using ERP.Services.Interfaces.ProjectManagement;
 using ERP.Services.Interfaces.QuotationManagement;
 using ERP.Services.Persons;
+using ERP.Services.ProjectManagement;
 using ERP.Services.QuotationManagement;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -146,6 +149,9 @@ builder.Services.AddScoped<IProjectTaskRepository, ProjectTaskRepository>();
 builder.Services.AddScoped<IProjectAttachmentRepository, ProjectAttachmentRepository>();
 builder.Services.AddScoped<IProjectProfitShareRepository, ProjectProfitShareRepository>();
 builder.Services.AddScoped<IQuotaionAttachementRepository , QuotaionAttachementRepository>();
+builder.Services.AddScoped<IFileStorageService, FileStorageService>();
+builder.Services.AddScoped<ICreateService , CreateService>();
+
 #endregion
 
 var app = builder.Build();

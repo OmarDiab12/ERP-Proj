@@ -30,6 +30,7 @@ namespace ERP.Models.Projects
 
         public string ProjectName { get; set; }
         public string Description { get; set; }
+        public string location { get; set; } = string.Empty;
 
         public DateTime StartDate { get; set; } = DateTime.UtcNow;
         public DateTime? EndDate { get; set; }

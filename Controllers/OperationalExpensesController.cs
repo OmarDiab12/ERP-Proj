@@ -20,23 +20,22 @@ namespace ERP.Controllers
 
         // ===== CRUD =====
 
-        // POST: api/operationalexpenses/create
         [HttpPost("create")]
-        public async Task<IActionResult> Create([FromBody] CreateOperationalExpenseDTO dto)
+        public async Task<IActionResult> Create([FromForm] CreateOperationalExpenseDTO dto)
         {
             var userId = User.GetUserId() ?? 0;
             var res = await _service.CreateAsync(dto, userId);
             return res.IsValid ? Ok(res) : BadRequest(res);
         }
 
-        // POST: api/operationalexpenses/edit
         [HttpPost("edit")]
-        public async Task<IActionResult> Edit([FromBody] EditOperationalExpenseDTO dto)
+        public async Task<IActionResult> Edit([FromForm] EditOperationalExpenseDTO dto)
         {
             var userId = User.GetUserId() ?? 0;
             var res = await _service.EditAsync(dto, userId);
             return res.IsValid ? Ok(res) : BadRequest(res);
         }
+
 
         // POST: api/operationalexpenses/delete-5
         [HttpPost("delete-{id:int}")]

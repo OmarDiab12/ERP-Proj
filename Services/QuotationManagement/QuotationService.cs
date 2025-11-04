@@ -152,6 +152,7 @@ namespace ERP.Services.QuotationManagement
                 entity.IsValidTo = qvalidDate;
                 entity.Status = Enum.TryParse<QuotationStatus>(dto.Status, true, out var st) ? st : entity.Status;
                 entity.GeneralNotes = dto.GeneralNotes ?? string.Empty;
+                entity.Description = dto.Description;
 
                 // Remove existing items and re-add (simple approach)
                 await _itemRepo.DeleteByQuotationIdAsync(entity.Id);

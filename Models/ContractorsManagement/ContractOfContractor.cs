@@ -16,6 +16,9 @@ namespace ERP.Models.ContractorsManagement
         public decimal TotalWithdrawals { get; set; }
         [Precision(18, 2)]
         public decimal RemainingBalance => ContractAmount - TotalWithdrawals;
+        public string Description { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
 
         // A list of file paths or URLs for contract documents.
         public string ContractDocuments { get; set; }
