@@ -151,6 +151,7 @@ builder.Services.AddScoped<IProjectProfitShareRepository, ProjectProfitShareRepo
 builder.Services.AddScoped<IQuotaionAttachementRepository , QuotaionAttachementRepository>();
 builder.Services.AddScoped<IFileStorageService, FileStorageService>();
 builder.Services.AddScoped<ICreateService , CreateService>();
+builder.Services.AddScoped<IGetService , GetService>();
 
 #endregion
 
