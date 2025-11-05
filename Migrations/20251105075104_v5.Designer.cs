@@ -4,6 +4,7 @@ using ERP.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ERP.Migrations
 {
     [DbContext(typeof(ERPDBContext))]
-    partial class ERPDBContextModelSnapshot : ModelSnapshot
+    [Migration("20251105075104_v5")]
+    partial class v5
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -448,6 +451,7 @@ namespace ERP.Migrations
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Category")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
@@ -457,6 +461,7 @@ namespace ERP.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Description")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("ExpenseDate")
@@ -472,9 +477,11 @@ namespace ERP.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("fileName")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("filePath")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -1142,15 +1149,15 @@ namespace ERP.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2025, 11, 5, 10, 16, 15, 287, DateTimeKind.Utc).AddTicks(4474),
+                            CreatedAt = new DateTime(2025, 11, 5, 7, 51, 3, 236, DateTimeKind.Utc).AddTicks(5497),
                             CreatedBy = 0,
                             DisplayName = "Admin",
                             Email = "admin@erp.com",
                             FullName = "System Admin",
                             IsDeleted = false,
-                            PasswordHash = "$2a$11$c16jdX1V07awyFfrSQC2VOBjnrDIp92WPlVG.MyNjbfMIZzhyIalG",
+                            PasswordHash = "$2a$11$mI3FGIH5bIMxcta5XEfc8epln564jcfZLnoSTDk7UqZCdixhRCEK.",
                             PhoneNumber = "",
-                            UpdatedAt = new DateTime(2025, 11, 5, 10, 16, 15, 287, DateTimeKind.Utc).AddTicks(4480),
+                            UpdatedAt = new DateTime(2025, 11, 5, 7, 51, 3, 236, DateTimeKind.Utc).AddTicks(5506),
                             UpdatedBy = 0
                         });
                 });
