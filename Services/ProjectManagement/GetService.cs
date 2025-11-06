@@ -50,15 +50,23 @@ namespace ERP.Services.ProjectManagement
                             FilePath = a.FilePath
                         }).ToList(),
                     Contractors = project.ContractOfContracts
-                        .Select(c => new ProjectContractorDto
-                        {
-                            Id = c.Id,
-                            ContractorName = c.Contractor?.Name ?? "N/A",
-                            ContractAmount = c.ContractAmount,
-                            Description = c.Description,
-                            StartDate = c.StartDate.ToString("yyyy-MM-dd"),
-                            EndDate = c.EndDate.ToString("yyyy-MM-dd")
-                        }).ToList(),
+                            .Select(c => new ProjectContractorDto
+                            {
+                                Id = c.Id,
+                                ContractorName = c.Contractor?.Name ?? "N/A",
+                                ContractAmount = c.ContractAmount,
+                                Description = c.Description,
+                                StartDate = c.StartDate.ToString("yyyy-MM-dd"),
+                                EndDate = c.EndDate == default ? null : c.EndDate.ToString("yyyy-MM-dd"),
+                                Payments = c.ContactPayments?.Select(p => new ContractPaymentDto
+                                {
+                                Id = p.Id,
+                                Amount = p.amount,
+                                Status = p.status.ToString(),
+                                index = p.index,
+                                PaymentDate = p.dateTime.ToString("yyyy-MM-dd")
+                                    }).ToList() ?? new List<ContractPaymentDto>()
+                            }).ToList(),
                     Tasks = project.ProjectTasks
                         .Select(t => new ProjectTaskDto
                         {

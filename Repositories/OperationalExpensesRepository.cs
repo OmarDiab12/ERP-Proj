@@ -9,7 +9,7 @@ namespace ERP.Repositories
         public async Task<List<OperationalExpense>> GetByDateRangeAsync(DateTime from, DateTime to, string? category = null)
         {
             var q = _context.Set<OperationalExpense>()
-                            .Where(e => e.ExpenseDate >= from && e.ExpenseDate <= to);
+                            .Where(e => e.ExpenseDate >= from && e.ExpenseDate <= to && !e.IsDeleted);
 
             if (!string.IsNullOrWhiteSpace(category))
                 q = q.Where(e => e.Category == category);
@@ -21,6 +21,7 @@ namespace ERP.Repositories
         {
             var skip = (page - 1) * pageSize;
             return await _context.Set<OperationalExpense>()
+                                  .Where(e=>!e.IsDeleted)
                                  .OrderByDescending(e => e.ExpenseDate)
                                  .Skip(skip).Take(pageSize)
                                  .ToListAsync();
@@ -29,7 +30,7 @@ namespace ERP.Repositories
         public async Task<decimal> GetTotalByDateRangeAsync(DateTime from, DateTime to, string? category = null)
         {
             var q = _context.Set<OperationalExpense>()
-                            .Where(e => e.ExpenseDate >= from && e.ExpenseDate <= to);
+                            .Where(e => e.ExpenseDate >= from && e.ExpenseDate <= to && !e.IsDeleted);
 
             if (!string.IsNullOrWhiteSpace(category))
                 q = q.Where(e => e.Category == category);

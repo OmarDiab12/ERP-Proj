@@ -14,7 +14,7 @@ namespace ERP.Repositories.Persons
         {
             return await _context.ContractOfContracts.Where(c=>c.ContractorId == contractorId).ToListAsync();
         }
-        public async Task<bool> CreateContractAsync(ContractOfContractor contract, int userId)
+        public async Task<ContractOfContractor> CreateContractAsync(ContractOfContractor contract, int userId)
         {
             try
             {
@@ -24,13 +24,36 @@ namespace ERP.Repositories.Persons
 
                 await _context.ContractOfContracts.AddAsync(contract);
                 await _context.SaveChangesAsync();
+                return contract ;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<bool> CreateContractPaymentsAsync(List<ContactPayment> payments, int userId)
+        {
+            try
+            {
+                foreach (var payment in payments)
+                {
+                    payment.CreatedBy = userId;
+                    payment.CreatedAt = DateTime.UtcNow;
+                    payment.IsDeleted = false;
+                }
+
+                await _context.ContactPayments.AddRangeAsync(payments);
+                await _context.SaveChangesAsync();
+
                 return true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 return false;
             }
         }
+
 
         public async Task<IEnumerable<ContractOfContractor>> GetByProjectIdAsync(int projectId)
         {
@@ -38,5 +61,7 @@ namespace ERP.Repositories.Persons
                 .Where(c => c.ProjectId == projectId && !c.IsDeleted)
                 .ToListAsync();
         }
+
+
     }
 }

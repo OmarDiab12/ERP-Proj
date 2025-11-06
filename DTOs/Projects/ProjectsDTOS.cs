@@ -1,4 +1,6 @@
-﻿namespace ERP.DTOs.Projects
+﻿using ERP.Models.ContractorsManagement;
+
+namespace ERP.DTOs.Projects
 {
     public class ProjectCreateFullDTO
     {
@@ -28,10 +30,19 @@
         public int ContractorId { get; set; }
         public decimal ContractAmount { get; set; }
         public string ContractDescription { get; set; }
-        public DateTime? ContractStartDate { get; set; }
-        public DateTime? ContractEndDate { get; set; }
+        public string ContractStartDate { get; set; }
+        public string ContractEndDate { get; set; }
+        public List<ContractDetails> contractDetails { get; set; } = new();
     }
 
+    public class ContractDetails
+    {
+        public int contractorId { get; set; }
+        public int index { get; set; }
+        public decimal amount { get; set; }
+        public string status { get; set; }
+        public string dateTime { get; set; }
+    }
     public class ProjectListDto
     {
         public int Id { get; set; }
@@ -64,6 +75,17 @@
         public string Description { get; set; }
         public string StartDate { get; set; }
         public string? EndDate { get; set; }
+        public List<ContractPaymentDto> Payments { get; set; } = new();
+
+    }
+
+    public class ContractPaymentDto
+    {
+        public int Id { get; set; }
+        public int index { get; set; }
+        public decimal Amount { get; set; }
+        public string Status { get; set; }
+        public string PaymentDate { get; set; }
     }
 
     public class ProjectAttachmentDto

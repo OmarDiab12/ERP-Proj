@@ -90,13 +90,74 @@ namespace ERP.Services.ProjectManagement
         // MANUAL PROJECT CREATION (From UI Wizard)
         // ===========================================================
         public async Task<ResponseDTO> CreateFullProjectAsync(ProjectCreateFullDTO dto, int userId)
-        { 
+        {
             const string fn = nameof(CreateFullProjectAsync);
+
+            // 🔹 PRE-VALIDATION PHASE — No DB writes yet
+            if (!DateTime.TryParse(dto.StartDate, out var projectStart))
+                return new ResponseDTO { IsValid = false, Message = "Invalid StartDate" };
+
+            DateTime? projectEnd = null;
+            if (!string.IsNullOrWhiteSpace(dto.EndDate))
+            {
+                if (!DateTime.TryParse(dto.EndDate, out var parsedEnd))
+                    return new ResponseDTO { IsValid = false, Message = "Invalid EndDate" };
+                projectEnd = parsedEnd;
+            }
+
+            // 🔹 Validate Contractors and their Details
+            foreach (var contractor in dto.Contractors)
+            {
+                if (!DateTime.TryParse(contractor.ContractStartDate, out var cStart))
+                    return new ResponseDTO { IsValid = false, Message = $"Invalid ContractStartDate for contractor ID {contractor.ContractorId}" };
+
+                if (!DateTime.TryParse(contractor.ContractEndDate, out var cEnd))
+                    return new ResponseDTO { IsValid = false, Message = $"Invalid ContractEndDate for contractor ID {contractor.ContractorId}" };
+
+                if (cEnd < cStart)
+                    return new ResponseDTO { IsValid = false, Message = $"EndDate cannot be earlier than StartDate for contractor ID {contractor.ContractorId}" };
+
+                // 🔹 Validate ContractDetails inside each contractor
+                foreach (var detail in contractor.contractDetails)
+                {
+                    if (!DateTime.TryParse(detail.dateTime, out _))
+                        return new ResponseDTO
+                        {
+                            IsValid = false,
+                            Message = $"Invalid dateTime in contract detail (index {detail.index}) for contractor ID {contractor.ContractorId}"
+                        };
+
+                    // ✅ Validate Status (string → enum)
+                    if (!Enum.TryParse<PaymentStatus>(detail.status, true, out var _))
+                        return new ResponseDTO
+                        {
+                            IsValid = false,
+                            Message = $"Invalid status '{detail.status}' in contract detail (index {detail.index}) for contractor ID {contractor.ContractorId}"
+                        };
+                }
+
+            }
+
+            // 🔹 Validate Broker Commission
+            if (dto.BrokerCommissionPercentage.HasValue)
+            {
+                if (dto.BrokerCommissionPercentage.Value < 0 || dto.BrokerCommissionPercentage.Value > 100)
+                    return new ResponseDTO { IsValid = false, Message = "Broker commission percentage must be between 0 and 100." };
+            }
+
+            // 🔹 Validate Contract Amounts
+            foreach (var contractor in dto.Contractors)
+            {
+                if (contractor.ContractAmount <= 0)
+                    return new ResponseDTO { IsValid = false, Message = $"ContractAmount must be greater than 0 for contractor ID {contractor.ContractorId}" };
+            }
+
+            // 🔹 Start Transaction
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
             try
             {
-                // Step 1: Create Project
+                // STEP 1️⃣ — Create Project
                 var project = new Project
                 {
                     ProjectName = dto.ProjectName,
@@ -105,13 +166,14 @@ namespace ERP.Services.ProjectManagement
                     location = dto.Location,
                     BrokerId = dto.BrokerId,
                     quotationId = dto.QuotationId ?? 0,
-                    StartDate = DateTime.Parse(dto.StartDate),
+                    StartDate = projectStart,
+                    EndDate = projectEnd,
                     Status = dto.Status
                 };
 
                 await _projectRepo.CreateAsync(project, userId);
 
-                // Step 2: Save Attachments
+                // STEP 2️⃣ — Save Attachments (if any)
                 foreach (var file in dto.Attachments)
                 {
                     var result = await _fileStorage.SaveFileAsync(file, $"Projects/{project.Id}");
@@ -126,7 +188,7 @@ namespace ERP.Services.ProjectManagement
                     }
                 }
 
-                // Step 3: Broker Commission
+                // STEP 3️⃣ — Broker Commission
                 if (dto.BrokerId.HasValue && dto.BrokerCommissionPercentage.HasValue)
                 {
                     await _brokerComRepo.CreateCommisionAsync(new BrokerComission
@@ -138,21 +200,42 @@ namespace ERP.Services.ProjectManagement
                     }, userId);
                 }
 
-                // Step 4: Contractors
+                // STEP 4️⃣ — Contractors and their Payments
                 foreach (var c in dto.Contractors)
                 {
-                    await _contractRepo.CreateContractAsync(new ContractOfContractor
+                    // safely parse now (we already validated)
+                    DateTime.TryParse(c.ContractStartDate, out var cStart);
+                    DateTime.TryParse(c.ContractEndDate, out var cEnd);
+
+                    var contract = new ContractOfContractor
                     {
                         ProjectId = project.Id,
                         ContractorId = c.ContractorId,
                         ContractAmount = c.ContractAmount,
-                        Description = c.ContractDescription,
-                        StartDate = c.ContractStartDate ?? DateTime.UtcNow,
-                        EndDate = c.ContractEndDate ?? DateTime.UtcNow.AddDays(365)
-                    }, userId);
+                        Description = c.ContractDescription ?? string.Empty,
+                        StartDate = cStart,
+                        EndDate = cEnd
+                    };
+
+                    await _contractRepo.CreateContractAsync(contract, userId);
+
+                    // nested contract details (if any)
+                    if (c.contractDetails.Any())
+                    {
+                        var payments = c.contractDetails.Select(d => new ContactPayment
+                        {
+                            ContractId = contract.Id,
+                            amount = d.amount,
+                            index = d.index,
+                            status = Enum.TryParse<PaymentStatus>(d.status, true, out var parsedStatus) ? parsedStatus : PaymentStatus.Pending,
+                            dateTime = DateTime.Parse(d.dateTime)
+                        }).ToList();
+
+                        await _contractRepo.CreateContractPaymentsAsync(payments, userId);
+                    }
                 }
 
-                // ✅ Commit transaction
+                // ✅ Commit all changes
                 scope.Complete();
 
                 return new ResponseDTO
@@ -168,6 +251,7 @@ namespace ERP.Services.ProjectManagement
                 return new ResponseDTO { IsValid = false, Message = "Unexpected error while creating project." };
             }
         }
+
     }
 }
 

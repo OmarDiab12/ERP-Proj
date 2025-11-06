@@ -39,6 +39,12 @@
             Expense = 2
         }
 
+        public enum PaymentStatus
+        {
+            Paid = 1,
+            Pending = 2
+        }
+
         public enum TaskPriority 
         { 
             Low, 

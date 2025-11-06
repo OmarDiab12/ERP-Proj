@@ -36,6 +36,7 @@ namespace ERP.Models
         public DbSet<ProjectProfitShare> ProjectProfitShares { get; set; }
         public DbSet<ProjectTask> ProjectTasks { get; set; }
         public DbSet<QuotationAttachement> QuotationAttachements { get; set; }
+        public DbSet<ContactPayment> ContactPayments { get; set; }
 
         #endregion
 

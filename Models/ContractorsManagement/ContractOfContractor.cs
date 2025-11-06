@@ -25,5 +25,6 @@ namespace ERP.Models.ContractorsManagement
 
         public virtual Contractor Contractor { get; set; }
         public virtual Project Project { get; set; }
+        public virtual List<ContactPayment> ContactPayments { get; set; } = new List<ContactPayment>();
     }
 }
