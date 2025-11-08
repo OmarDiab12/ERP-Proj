@@ -12,7 +12,7 @@ namespace ERP.Repositories.Persons
         public async Task<List<EmployeeTransaction>> GetEmployeeTransactionsAsync(int employeeId)
         {
             return await _context.Set<EmployeeTransaction>()
-                .Where(t => t.EmployeeId == employeeId)
+                .Where(t => t.EmployeeId == employeeId && !t.IsDeleted)
                 .OrderByDescending(t => t.TransactionDate)
                 .ToListAsync();
         }
@@ -21,7 +21,7 @@ namespace ERP.Repositories.Persons
         {
             var skip = (page - 1) * pageSize;
             return await _context.Set<EmployeeTransaction>()
-                .Where(t => t.EmployeeId == employeeId)
+                .Where(t => t.EmployeeId == employeeId && !t.IsDeleted)
                 .OrderByDescending(t => t.TransactionDate)
                 .Skip(skip).Take(pageSize)
                 .ToListAsync();
@@ -30,7 +30,7 @@ namespace ERP.Repositories.Persons
         public Task<EmployeeTransaction?> GetTransactionByIdAsync(int transactionId)
         {
             return _context.Set<EmployeeTransaction>()
-                .FirstOrDefaultAsync(t => t.Id == transactionId);
+                .FirstOrDefaultAsync(t => t.Id == transactionId && !t.IsDeleted);
         }
 
         public async Task<bool> AddTransactionAsync(EmployeeTransaction tx)
@@ -59,7 +59,7 @@ namespace ERP.Repositories.Persons
         public async Task<decimal> GetEmployeeBalanceAsync(int employeeId)
         {
             var sum = await _context.Set<EmployeeTransaction>()
-                .Where(t => t.EmployeeId == employeeId)
+                .Where(t => t.EmployeeId == employeeId && !t.IsDeleted)
                 .SumAsync(t => (decimal?)t.Amount) ?? 0m;
 
             return sum;

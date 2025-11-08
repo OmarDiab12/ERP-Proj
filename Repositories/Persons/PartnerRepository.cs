@@ -13,7 +13,7 @@ namespace ERP.Repositories.Persons
 
         public async Task<List<PartnerTransaction>> GetTransactionsForPartner(int partnerId)
         {
-            return await _context.PartnerTransactions.Where(c=>c.PartnerId == partnerId).ToListAsync();
+            return await _context.PartnerTransactions.Where(c=>c.PartnerId == partnerId && !c.IsDeleted).ToListAsync();
         }
 
         public async Task<bool> CreateNewPartner(List<PartnersShareDTO> partnersShares, Partner newPartner)

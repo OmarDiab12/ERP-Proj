@@ -21,7 +21,7 @@ namespace ERP.Repositories
         {
             var skip = (page - 1) * pageSize;
             return await _context.Set<OperationalExpense>()
-                                  .Where(e=>!e.IsDeleted)
+                                 .Where(e=>!e.IsDeleted)
                                  .OrderByDescending(e => e.ExpenseDate)
                                  .Skip(skip).Take(pageSize)
                                  .ToListAsync();

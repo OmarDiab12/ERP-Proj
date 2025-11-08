@@ -11,6 +11,7 @@ namespace ERP.Repositories
         {
             var skip = (page - 1) * pageSize;
             return await _context.Set<PersonalLoan>()
+                                 .Where(l=>!l.IsDeleted)
                                  .OrderByDescending(l => l.IssueDate)
                                  .Skip(skip).Take(pageSize)
                                  .ToListAsync();
@@ -19,7 +20,7 @@ namespace ERP.Repositories
         public async Task<List<PersonalLoan>> GetOverdueLoansAsync(DateTime asOfDate)
         {
             return await _context.Set<PersonalLoan>()
-                                 .Where(l => !l.IsRepaid && l.RepaymentDate < asOfDate)
+                                 .Where(l => !l.IsRepaid && l.RepaymentDate < asOfDate && !l.IsDeleted)
                                  .OrderBy(l => l.RepaymentDate)
                                  .ToListAsync();
         }

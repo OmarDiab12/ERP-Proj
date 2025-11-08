@@ -2,6 +2,7 @@
 using ERP.Models.Projects;
 using ERP.Repositories.Interfaces.ProjectsManagement;
 using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 
 namespace ERP.Repositories.ProjectManagement
 {
@@ -21,7 +22,7 @@ namespace ERP.Repositories.ProjectManagement
 
         public async Task<decimal> GetTotalProfitAsync(int projectId)
         {
-            var project = await _dbSet.FirstOrDefaultAsync(p => p.Id == projectId);
+            var project = await _dbSet.FirstOrDefaultAsync(p => p.Id == projectId && !p.IsDeleted);
 
             if (project == null) return 0;
 
@@ -30,6 +31,54 @@ namespace ERP.Repositories.ProjectManagement
             decimal totalContractorPayments = project.ContractOfContracts.Sum(x => x.ContractAmount);
 
             return totalPayments - (totalExpenses + totalContractorPayments);
+        }
+
+        public async Task SoftDeleteTaskAsync(int taskId, int userId)
+        {
+            var entity = await _context.ProjectTasks.FirstOrDefaultAsync(t => t.Id == taskId);
+            if (entity != null)
+            {
+                entity.IsDeleted = true;
+                entity.UpdatedBy = userId;
+                entity.UpdatedAt = DateTime.UtcNow;
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        public async Task SoftDeleteProfitShareAsync(int profitShareId, int userId)
+        {
+            var entity = await _context.ProjectProfitShares.FirstOrDefaultAsync(t => t.Id == profitShareId);
+            if (entity != null)
+            {
+                entity.IsDeleted = true;
+                entity.UpdatedBy = userId;
+                entity.UpdatedAt = DateTime.UtcNow;
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        public async Task SoftDeletePaymentAsync(int paymentId, int userId)
+        {
+            var entity = await _context.ProjectPayments.FirstOrDefaultAsync(t => t.Id == paymentId);
+            if (entity != null)
+            {
+                entity.IsDeleted = true;
+                entity.UpdatedBy = userId;
+                entity.UpdatedAt = DateTime.UtcNow;
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        public async Task SoftDeleteExpenseAsync(int expenseId, int userId)
+        {
+            var entity = await _context.ProjectExpenses.FirstOrDefaultAsync(t => t.Id == expenseId);
+            if (entity != null)
+            {
+                entity.IsDeleted = true;
+                entity.UpdatedBy = userId;
+                entity.UpdatedAt = DateTime.UtcNow;
+                await _context.SaveChangesAsync();
+            }
         }
     }
 }

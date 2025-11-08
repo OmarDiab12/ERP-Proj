@@ -10,7 +10,7 @@ namespace ERP.Repositories.QuotationManagement
 
         public bool ChangeStatus(int quotationId ,QuotationStatus status)
         {
-            var q = _context.Quotations.Where(c=>c.Id == quotationId).FirstOrDefault();
+            var q = _context.Quotations.Where(c=>c.Id == quotationId && !c.IsDeleted).FirstOrDefault();
             q.Status = status;
             _context.SaveChangesAsync();
             return true;

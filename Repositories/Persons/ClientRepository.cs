@@ -12,12 +12,12 @@ namespace ERP.Repositories.Persons
 
         public async Task<List<ClientAccountStatement>> getClientStatements(int clientId)
         {
-            return await _context.ClientStatements.Where(c=>c.ClientId == clientId).ToListAsync();
+            return await _context.ClientStatements.Where(c=>c.ClientId == clientId && !c.IsDeleted).ToListAsync();
         }
 
         public async Task<List<ClientAccountStatement>> getStatementsforClientperProject(int clientId , int projectId)
         {
-            return await _context.ClientStatements.Where(c => c.ClientId == clientId && c.ProjectId == projectId).ToListAsync();
+            return await _context.ClientStatements.Where(c => c.ClientId == clientId && c.ProjectId == projectId && !c.IsDeleted).ToListAsync();
 
         }
 

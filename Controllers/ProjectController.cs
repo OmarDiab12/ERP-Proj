@@ -15,11 +15,13 @@ namespace ERP.Controllers
     {
         private readonly ICreateService _createService;
         private readonly IGetService _getService;
+        private readonly IUpdateService _updateService;
 
-        public ProjectController(ICreateService createService,IGetService getService)
+        public ProjectController(ICreateService createService,IGetService getService, IUpdateService updateService)
         {
             _createService = createService;
             _getService = getService;
+            _updateService = updateService;
         }
 
         [HttpPost("create-full")]
@@ -50,6 +52,14 @@ namespace ERP.Controllers
         {
             var res = await _getService.GetAllAsync(filter);
             return Ok(res);
+        }
+
+        [HttpPost("update-full")]
+        public async Task<IActionResult> UpdateFull([FromForm] ProjectUpdateFullDTO dto)
+        {
+            int userId = User.GetUserId() ?? 0;
+            var result = await _updateService.UpdateProjectAsync(dto, userId);
+            return result.IsValid ? Ok(result) : BadRequest(result);
         }
     }
 }

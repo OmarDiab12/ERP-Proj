@@ -13,7 +13,7 @@ namespace ERP.Repositories.QuotationManagement
         {
             // إرجاع العناصر المرتبطة بالـ quotationId مرتبة حسب Id أو أي ترتيب تفضله
             return await _context.Set<QuotationItem>()
-                                 .Where(i => i.QuotationId == quotationId)
+                                 .Where(i => i.QuotationId == quotationId && !i.IsDeleted)
                                  .OrderBy(i => i.Id)
                                  .ToListAsync();
         }

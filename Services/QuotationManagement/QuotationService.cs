@@ -312,7 +312,6 @@ namespace ERP.Services.QuotationManagement
             }
         }
 
-
         public async Task<ResponseDTO> GetAllAsync()
         {
             const string fn = nameof(GetAllAsync);
