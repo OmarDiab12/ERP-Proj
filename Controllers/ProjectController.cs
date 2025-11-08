@@ -61,5 +61,14 @@ namespace ERP.Controllers
             var result = await _updateService.UpdateProjectAsync(dto, userId);
             return result.IsValid ? Ok(result) : BadRequest(result);
         }
+
+        [HttpPost("{id:int}")]
+        public async Task<IActionResult> DeleteProject(int id)
+        {
+            var userId = User.GetUserId() ?? 0;
+            var result = await _updateService.DeleteProjectAsync(id, userId);
+            return result.IsValid ? Ok(result) : BadRequest(result);
+        }
+
     }
 }

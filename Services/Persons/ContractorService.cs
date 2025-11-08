@@ -81,7 +81,7 @@ namespace ERP.Services.Persons
                     };
                 }
 
-                var contracts = await _contractorRepository.GetContractorContracts(contractorId);
+                var contracts = await _contractorRepository.GetByContractorIdAsync(contractorId);
 
                 List<ContractofContractorDTO> transactions = contracts.Select(c => new ContractofContractorDTO
                 {
@@ -120,7 +120,7 @@ namespace ERP.Services.Persons
                 var result = new List<ContractorDTO>();
                 foreach (var contractor in contractora)
                 {
-                    var contracts = await _contractorRepository.GetContractorContracts(contractor.Id);
+                    var contracts = await _contractorRepository.GetByContractorIdAsync(contractor.Id);
 
                     List<ContractofContractorDTO> transactions = contracts.Select(c => new ContractofContractorDTO
                     {

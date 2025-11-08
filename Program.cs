@@ -153,7 +153,6 @@ builder.Services.AddScoped<IFileStorageService, FileStorageService>();
 builder.Services.AddScoped<ICreateService , CreateService>();
 builder.Services.AddScoped<IGetService , GetService>();
 builder.Services.AddScoped<IUpdateService , UpdateService>();
-builder.Services.AddScoped<IDeleteService , DeleteService>();
 
 #endregion
 

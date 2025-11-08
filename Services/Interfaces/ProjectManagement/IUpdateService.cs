@@ -5,5 +5,6 @@ namespace ERP.Services.Interfaces.ProjectManagement
     public interface IUpdateService
     {
         Task<ResponseDTO> UpdateProjectAsync(ProjectUpdateFullDTO dto, int userId);
+        Task<ResponseDTO> DeleteProjectAsync(int projectId, int userId);
     }
 }
