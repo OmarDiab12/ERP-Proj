@@ -5,13 +5,17 @@ using ERP.Repositories;
 using ERP.Repositories.Interfaces.Persons;
 using ERP.Repositories.Interfaces.ProjectsManagement;
 using ERP.Repositories.Interfaces.QuotationManagement;
+using ERP.Repositories.Interfaces.EngineeringOffice;
 using ERP.Repositories.Persons;
 using ERP.Repositories.ProjectManagement;
 using ERP.Repositories.QuotationManagement;
+using ERP.Repositories.EngineeringOffice;
 using ERP.Services;
 using ERP.Services.Interfaces.Persons;
 using ERP.Services.Interfaces.ProjectManagement;
 using ERP.Services.Interfaces.QuotationManagement;
+using ERP.Services.Interfaces;
+using ERP.Services.EngineeringOffice;
 using ERP.Services.Persons;
 using ERP.Services.ProjectManagement;
 using ERP.Services.QuotationManagement;
@@ -153,6 +157,9 @@ builder.Services.AddScoped<IFileStorageService, FileStorageService>();
 builder.Services.AddScoped<ICreateService , CreateService>();
 builder.Services.AddScoped<IGetService , GetService>();
 builder.Services.AddScoped<IUpdateService , UpdateService>();
+builder.Services.AddScoped<IEngineeringProjectRepository, EngineeringProjectRepository>();
+builder.Services.AddScoped<IEngineeringProjectAttachmentRepository, EngineeringProjectAttachmentRepository>();
+builder.Services.AddScoped<IEngineeringOfficeService, EngineeringOfficeService>();
 
 #endregion
 

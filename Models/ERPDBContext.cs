@@ -6,6 +6,7 @@ using ERP.Models.Partners;
 using ERP.Models.Projects;
 using ERP.Models.ProjectsManagement;
 using ERP.Models.QoutationManagement;
+using ERP.Models.EngineeringOffice;
 using Microsoft.EntityFrameworkCore;
 
 namespace ERP.Models
@@ -37,6 +38,8 @@ namespace ERP.Models
         public DbSet<ProjectTask> ProjectTasks { get; set; }
         public DbSet<QuotationAttachement> QuotationAttachements { get; set; }
         public DbSet<ContactPayment> ContactPayments { get; set; }
+        public DbSet<EngineeringProject> EngineeringProjects { get; set; }
+        public DbSet<EngineeringProjectAttachment> EngineeringProjectAttachments { get; set; }
 
         #endregion
 
