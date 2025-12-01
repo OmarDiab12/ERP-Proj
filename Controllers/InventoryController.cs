@@ -48,6 +48,13 @@ namespace ERP.Controllers
             return res.IsValid ? Ok(res) : BadRequest(res);
         }
 
+        [HttpPost("low-stock/notify")]
+        public async Task<IActionResult> NotifyLowStock()
+        {
+            var res = await _service.NotifyLowStockAsync();
+            return res.IsValid ? Ok(res) : BadRequest(res);
+        }
+
         [HttpPost("get-{id:int}")]
         public async Task<IActionResult> Get(int id)
         {

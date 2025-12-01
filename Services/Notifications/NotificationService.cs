@@ -1,4 +1,5 @@
 using ERP.DTOs.Invoices;
+using ERP.DTOs.Inventory;
 using ERP.Hubs;
 using ERP.Services.Interfaces.Notifications;
 using Microsoft.AspNetCore.SignalR;
@@ -17,6 +18,11 @@ namespace ERP.Services.Notifications
         public Task BroadcastDueRemindersAsync(IEnumerable<InvoiceDueReminderDTO> reminders)
         {
             return _hubContext.Clients.All.SendAsync("dueReminders", reminders);
+        }
+
+        public Task BroadcastLowStockAsync(IEnumerable<InventoryLowStockAlertDTO> alerts)
+        {
+            return _hubContext.Clients.All.SendAsync("lowStock", alerts);
         }
 
         public Task BroadcastMessageAsync(string topic, object payload)

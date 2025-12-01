@@ -47,5 +47,12 @@ namespace ERP.Controllers
             var res = await _service.GetAsync(id);
             return res.IsValid ? Ok(res) : NotFound(res);
         }
+
+        [HttpPost("get-with-invoices-{id:int}")]
+        public async Task<IActionResult> GetWithInvoices(int id)
+        {
+            var res = await _service.GetWithInvoicesAsync(id);
+            return res.IsValid ? Ok(res) : NotFound(res);
+        }
     }
 }
