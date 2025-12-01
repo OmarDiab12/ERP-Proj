@@ -1,6 +1,7 @@
 using ERP.DTOs.Suppliers;
 using ERP.Models.SuppliersManagement;
 using ERP.Repositories.Interfaces;
+using ERP.Repositories.Interfaces.Invoices;
 using ERP.Repositories.Interfaces.Suppliers;
 using ERP.Services.Interfaces.Suppliers;
 
@@ -10,11 +11,13 @@ namespace ERP.Services.Suppliers
     {
         private readonly ISupplierRepository _repo;
         private readonly IErrorRepository _errors;
+        private readonly IInvoiceRepository _invoiceRepo;
 
-        public SupplierService(ISupplierRepository repo, IErrorRepository errors)
+        public SupplierService(ISupplierRepository repo, IErrorRepository errors, IInvoiceRepository invoiceRepo)
         {
             _repo = repo;
             _errors = errors;
+            _invoiceRepo = invoiceRepo;
         }
 
         public async Task<ResponseDTO> CreateAsync(CreateSupplierDTO dto, int userId)
@@ -70,6 +73,38 @@ namespace ERP.Services.Suppliers
             }
         }
 
+        public async Task<ResponseDTO> GetWithInvoicesAsync(int id)
+        {
+            const string fn = nameof(GetWithInvoicesAsync);
+            try
+            {
+                var supplierRes = await GetAsync(id);
+                if (!supplierRes.IsValid)
+                    return supplierRes;
+
+                if (supplierRes.Data is not SupplierDTO supplierDto)
+                    return new ResponseDTO { IsValid = false, Message = "Supplier data unavailable" };
+
+                var invoices = await _invoiceRepo.GetFilteredAsync(null, null, null, id, null, null, null, null);
+                var invoiceDtos = invoices.Select(MapInvoice).ToList();
+                var outstanding = invoices.Sum(inv => Math.Max(0, inv.Total - inv.PaidAmount));
+
+                var dto = new SupplierWithInvoicesDTO
+                {
+                    Supplier = supplierDto,
+                    Invoices = invoiceDtos,
+                    OutstandingBalance = outstanding
+                };
+
+                return new ResponseDTO { IsValid = true, Data = dto };
+            }
+            catch (Exception ex)
+            {
+                await _errors.LogErrorAsync(ex.Message, fn, ex.StackTrace ?? string.Empty, 0);
+                return new ResponseDTO { IsValid = false, Message = "Unexpected error happened" };
+            }
+        }
+
         public async Task<ResponseDTO> GetAsync(int id)
         {
             const string fn = nameof(GetAsync);
@@ -114,7 +149,12 @@ namespace ERP.Services.Suppliers
                 supplier.Email = dto.Email;
                 supplier.Address = dto.Address;
                 supplier.Notes = dto.Notes;
-                supplier.OpeningBalance = dto.OpeningBalance;
+                if (supplier.OpeningBalance != dto.OpeningBalance)
+                {
+                    var diff = dto.OpeningBalance - supplier.OpeningBalance;
+                    supplier.OpeningBalance = dto.OpeningBalance;
+                    supplier.CurrentBalance += diff;
+                }
 
                 await _repo.UpdateAsync(supplier, userId);
                 return new ResponseDTO { IsValid = true, Message = "Supplier updated" };
@@ -124,6 +164,57 @@ namespace ERP.Services.Suppliers
                 await _errors.LogErrorAsync(ex.Message, fn, ex.StackTrace ?? string.Empty, userId);
                 return new ResponseDTO { IsValid = false, Message = "Unexpected error happened" };
             }
+        }
+
+        private DTOs.Invoices.InvoiceDTO MapInvoice(ERP.Models.InvoicesManagement.Invoice invoice)
+        {
+            return new DTOs.Invoices.InvoiceDTO
+            {
+                Id = invoice.Id,
+                InvoiceNumber = invoice.InvoiceNumber,
+                InvoiceDate = invoice.InvoiceDate.ToString("yyyy-MM-dd"),
+                DueDate = invoice.DueDate?.ToString("yyyy-MM-dd"),
+                Type = invoice.Type,
+                Status = invoice.Status,
+                PaymentType = invoice.PaymentType,
+                PaymentMethod = invoice.PaymentMethod,
+                SubTotal = invoice.SubTotal,
+                Discount = invoice.Discount,
+                Tax = invoice.Tax,
+                Total = invoice.Total,
+                PaidAmount = invoice.PaidAmount,
+                Currency = invoice.Currency,
+                Notes = invoice.Notes,
+                SupplierId = invoice.SupplierId,
+                ClientId = invoice.ClientId,
+                ProjectId = invoice.ProjectId,
+                Items = invoice.Items.Select(it => new DTOs.Invoices.InvoiceItemDTO
+                {
+                    Id = it.Id,
+                    ProductId = it.ProductId,
+                    Description = it.Description,
+                    Quantity = it.Quantity,
+                    UnitPrice = it.UnitPrice,
+                    Discount = it.Discount,
+                    Total = it.Total
+                }).ToList(),
+                Attachments = invoice.Attachments.Select(att => new DTOs.Invoices.InvoiceAttachmentDTO
+                {
+                    Id = att.Id,
+                    FileName = att.FileName,
+                    FilePath = att.FilePath
+                }).ToList(),
+                PaymentSchedules = invoice.PaymentSchedules
+                    .OrderBy(ps => ps.DueDate)
+                    .Select(ps => new DTOs.Invoices.InvoicePaymentScheduleDTO
+                    {
+                        Id = ps.Id,
+                        Amount = ps.Amount,
+                        DueDate = ps.DueDate.ToString("yyyy-MM-dd"),
+                        IsPaid = ps.IsPaid,
+                        Notes = ps.Notes
+                    }).ToList()
+            };
         }
     }
 }

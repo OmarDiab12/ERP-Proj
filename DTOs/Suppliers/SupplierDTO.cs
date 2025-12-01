@@ -11,4 +11,11 @@ namespace ERP.DTOs.Suppliers
         public decimal OpeningBalance { get; set; }
         public decimal CurrentBalance { get; set; }
     }
+
+    public class SupplierWithInvoicesDTO
+    {
+        public SupplierDTO Supplier { get; set; }
+        public List<Invoices.InvoiceDTO> Invoices { get; set; } = new();
+        public decimal OutstandingBalance { get; set; }
+    }
 }
