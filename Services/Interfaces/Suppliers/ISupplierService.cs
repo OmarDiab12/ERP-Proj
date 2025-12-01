@@ -8,5 +8,6 @@ namespace ERP.Services.Interfaces.Suppliers
         Task<ResponseDTO> UpdateAsync(UpdateSupplierDTO dto, int userId);
         Task<ResponseDTO> GetAsync(int id);
         Task<ResponseDTO> GetAllAsync();
+        Task<ResponseDTO> GetWithInvoicesAsync(int id);
     }
 }
