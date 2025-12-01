@@ -53,12 +53,33 @@
             Urgent 
         }
         
-        public enum TaskStatus 
-        { 
-            New, 
-            InProgress, 
-            Completed, 
-            Delayed 
+        public enum TaskStatus
+        {
+            New,
+            InProgress,
+            Completed,
+            Delayed
+        }
+
+        public enum InvoiceType
+        {
+            Purchase = 1,
+            Sale = 2
+        }
+
+        public enum InvoiceStatus
+        {
+            Draft = 0,
+            Unpaid = 1,
+            PartiallyPaid = 2,
+            Paid = 3,
+            Overdue = 4
+        }
+
+        public enum InvoicePaymentType
+        {
+            Cash = 1,
+            Credit = 2
         }
     }
 }
