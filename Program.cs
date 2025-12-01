@@ -6,16 +6,10 @@ using ERP.Repositories.Interfaces.Persons;
 using ERP.Repositories.Interfaces.ProjectsManagement;
 using ERP.Repositories.Interfaces.QuotationManagement;
 using ERP.Repositories.Interfaces.EngineeringOffice;
-using ERP.Repositories.Interfaces.Suppliers;
-using ERP.Repositories.Interfaces.Inventory;
-using ERP.Repositories.Interfaces.Invoices;
 using ERP.Repositories.Persons;
 using ERP.Repositories.ProjectManagement;
 using ERP.Repositories.QuotationManagement;
 using ERP.Repositories.EngineeringOffice;
-using ERP.Repositories.Suppliers;
-using ERP.Repositories.Inventory;
-using ERP.Repositories.Invoices;
 using ERP.Services;
 using ERP.Services.Interfaces.Persons;
 using ERP.Services.Interfaces.ProjectManagement;
@@ -172,12 +166,6 @@ builder.Services.AddScoped<IUpdateService , UpdateService>();
 builder.Services.AddScoped<IEngineeringProjectRepository, EngineeringProjectRepository>();
 builder.Services.AddScoped<IEngineeringProjectAttachmentRepository, EngineeringProjectAttachmentRepository>();
 builder.Services.AddScoped<IEngineeringOfficeService, EngineeringOfficeService>();
-builder.Services.AddScoped<ISupplierRepository, SupplierRepository>();
-builder.Services.AddScoped<ISupplierService, SupplierService>();
-builder.Services.AddScoped<IInventoryRepository, InventoryRepository>();
-builder.Services.AddScoped<IInventoryService, InventoryService>();
-builder.Services.AddScoped<IInvoiceRepository, InvoiceRepository>();
-builder.Services.AddScoped<IInvoiceService, InvoiceService>();
 
 #endregion
 

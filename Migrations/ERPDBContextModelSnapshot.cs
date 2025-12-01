@@ -1922,13 +1922,6 @@ namespace ERP.Migrations
                     b.Navigation("Attachments");
                 });
 
-            modelBuilder.Entity("ERP.Models.InvoicesManagement.Invoice", b =>
-                {
-                    b.Navigation("Attachments");
-
-                    b.Navigation("Items");
-                });
-
             modelBuilder.Entity("ERP.Models.Partners.Partner", b =>
                 {
                     b.Navigation("transactions");
