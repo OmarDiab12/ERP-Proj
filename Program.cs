@@ -92,7 +92,7 @@ builder.Services.AddSwaggerGen(options =>
 #region DB SQLServer
 builder.Services.AddDbContext<ERPDBContext>(options =>
 {
-    options.UseLazyLoadingProxies().UseSqlServer(builder.Configuration.GetConnectionString("Default"));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("Default"));
 });
 #endregion
 
