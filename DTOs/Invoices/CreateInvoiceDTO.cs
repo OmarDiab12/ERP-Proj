@@ -32,6 +32,8 @@ namespace ERP.DTOs.Invoices
         [MinLength(1)]
         public List<InvoiceItemInputDTO> Items { get; set; } = new();
 
+        public List<InvoicePaymentScheduleInputDTO> PaymentSchedules { get; set; } = new();
+
         public IFormFileCollection? Attachments { get; set; }
     }
 }

@@ -47,5 +47,33 @@ namespace ERP.Controllers
             var res = await _service.GetAsync(id);
             return res.IsValid ? Ok(res) : NotFound(res);
         }
+
+        [HttpPost("filter")]
+        public async Task<IActionResult> Filter([FromBody] InvoiceFilterDTO dto)
+        {
+            var res = await _service.FilterAsync(dto);
+            return res.IsValid ? Ok(res) : BadRequest(res);
+        }
+
+        [HttpPost("due-reminders")]
+        public async Task<IActionResult> DueReminders([FromBody] InvoiceReminderFilterDTO dto)
+        {
+            var res = await _service.GetDueRemindersAsync(dto);
+            return res.IsValid ? Ok(res) : BadRequest(res);
+        }
+
+        [HttpPost("due-reminders/notify")]
+        public async Task<IActionResult> BroadcastDueReminders([FromBody] InvoiceReminderFilterDTO dto)
+        {
+            var res = await _service.NotifyDueRemindersAsync(dto);
+            return res.IsValid ? Ok(res) : BadRequest(res);
+        }
+
+        [HttpPost("export")]
+        public async Task<IActionResult> Export([FromBody] InvoiceExportRequestDTO dto)
+        {
+            var res = await _service.ExportAsync(dto);
+            return res.IsValid ? Ok(res) : BadRequest(res);
+        }
     }
 }

@@ -1268,6 +1268,56 @@ namespace ERP.Migrations
                     b.ToTable("InvoiceAttachments");
                 });
 
+            modelBuilder.Entity("ERP.Models.InvoicesManagement.InvoicePaymentSchedule", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("DueDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("InvoiceId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsPaid")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime?>("PaidDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UpdatedBy")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InvoiceId");
+
+                    b.ToTable("InvoicePaymentSchedules");
+                });
+
             modelBuilder.Entity("ERP.Models.InvoicesManagement.InvoiceItem", b =>
                 {
                     b.Property<int>("Id")
@@ -1860,6 +1910,17 @@ namespace ERP.Migrations
                     b.Navigation("Invoice");
                 });
 
+            modelBuilder.Entity("ERP.Models.InvoicesManagement.InvoicePaymentSchedule", b =>
+                {
+                    b.HasOne("ERP.Models.InvoicesManagement.Invoice", "Invoice")
+                        .WithMany("PaymentSchedules")
+                        .HasForeignKey("InvoiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Invoice");
+                });
+
             modelBuilder.Entity("ERP.Models.InvoicesManagement.InvoiceItem", b =>
                 {
                     b.HasOne("ERP.Models.InvoicesManagement.Invoice", "Invoice")
@@ -1920,6 +1981,13 @@ namespace ERP.Migrations
             modelBuilder.Entity("ERP.Models.EngineeringOffice.EngineeringProject", b =>
                 {
                     b.Navigation("Attachments");
+                });
+
+            modelBuilder.Entity("ERP.Models.InvoicesManagement.Invoice", b =>
+                {
+                    b.Navigation("Attachments");
+
+                    b.Navigation("Items");
                 });
 
             modelBuilder.Entity("ERP.Models.Partners.Partner", b =>

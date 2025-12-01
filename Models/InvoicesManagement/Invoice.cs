@@ -52,5 +52,6 @@ namespace ERP.Models.InvoicesManagement
 
         public virtual ICollection<InvoiceItem> Items { get; set; } = new List<InvoiceItem>();
         public virtual ICollection<InvoiceAttachment> Attachments { get; set; } = new List<InvoiceAttachment>();
+        public virtual ICollection<InvoicePaymentSchedule> PaymentSchedules { get; set; } = new List<InvoicePaymentSchedule>();
     }
 }

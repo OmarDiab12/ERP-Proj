@@ -8,5 +8,9 @@ namespace ERP.Services.Interfaces.Invoices
         Task<ResponseDTO> UpdateAsync(UpdateInvoiceDTO dto, int userId);
         Task<ResponseDTO> GetAsync(int id);
         Task<ResponseDTO> GetAllAsync();
+        Task<ResponseDTO> FilterAsync(InvoiceFilterDTO dto);
+        Task<ResponseDTO> GetDueRemindersAsync(InvoiceReminderFilterDTO dto);
+        Task<ResponseDTO> NotifyDueRemindersAsync(InvoiceReminderFilterDTO dto);
+        Task<ResponseDTO> ExportAsync(InvoiceExportRequestDTO dto);
     }
 }

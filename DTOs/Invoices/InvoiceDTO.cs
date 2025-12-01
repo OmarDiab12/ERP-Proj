@@ -42,5 +42,6 @@ namespace ERP.DTOs.Invoices
         public int? ProjectId { get; set; }
         public List<InvoiceItemDTO> Items { get; set; } = new();
         public List<InvoiceAttachmentDTO> Attachments { get; set; } = new();
+        public List<InvoicePaymentScheduleDTO> PaymentSchedules { get; set; } = new();
     }
 }

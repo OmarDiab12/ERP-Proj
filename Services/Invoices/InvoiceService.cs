@@ -5,6 +5,7 @@ using ERP.Repositories.Interfaces;
 using ERP.Repositories.Interfaces.Inventory;
 using ERP.Repositories.Interfaces.Invoices;
 using ERP.Repositories.Interfaces.Suppliers;
+using ERP.Services.Interfaces.Notifications;
 using ERP.Services.Interfaces.Invoices;
 using Microsoft.AspNetCore.Http;
 
@@ -17,14 +18,18 @@ namespace ERP.Services.Invoices
         private readonly ISupplierRepository _supplierRepo;
         private readonly IErrorRepository _errors;
         private readonly IFileStorageService _fileStorage;
+        private readonly IReportExportService _reportExporter;
+        private readonly INotificationService _notifications;
 
-        public InvoiceService(IInvoiceRepository repo, IInventoryRepository inventoryRepo, ISupplierRepository supplierRepo, IErrorRepository errors, IFileStorageService fileStorage)
+        public InvoiceService(IInvoiceRepository repo, IInventoryRepository inventoryRepo, ISupplierRepository supplierRepo, IErrorRepository errors, IFileStorageService fileStorage, IReportExportService reportExporter, INotificationService notifications)
         {
             _repo = repo;
             _inventoryRepo = inventoryRepo;
             _supplierRepo = supplierRepo;
             _errors = errors;
             _fileStorage = fileStorage;
+            _reportExporter = reportExporter;
+            _notifications = notifications;
         }
 
         public async Task<ResponseDTO> CreateAsync(CreateInvoiceDTO dto, int userId)
@@ -61,6 +66,8 @@ namespace ERP.Services.Invoices
                 var items = BuildItems(dto.Items, userId);
                 var totals = CalculateTotals(items, dto.Discount, dto.Tax, dto.PaidAmount);
 
+                var schedules = BuildSchedules(dto.PaymentSchedules, userId, dueDate);
+
                 var invoice = new Invoice
                 {
                     InvoiceNumber = dto.InvoiceNumber,
@@ -80,7 +87,8 @@ namespace ERP.Services.Invoices
                     ClientId = dto.ClientId,
                     ProjectId = dto.ProjectId,
                     Status = totals.Status,
-                    Items = items
+                    Items = items,
+                    PaymentSchedules = schedules
                 };
 
                 await _repo.CreateAsync(invoice, userId);
@@ -137,6 +145,62 @@ namespace ERP.Services.Invoices
             }
         }
 
+        public async Task<ResponseDTO> FilterAsync(InvoiceFilterDTO dto)
+        {
+            const string fn = nameof(FilterAsync);
+            try
+            {
+                Enums.InvoiceType? type = null;
+                if (!string.IsNullOrWhiteSpace(dto.Type))
+                {
+                    if (!Enum.TryParse(dto.Type, true, out Enums.InvoiceType parsedType))
+                        return new ResponseDTO { IsValid = false, Message = "Invalid invoice type" };
+                    type = parsedType;
+                }
+
+                Enums.InvoicePaymentType? paymentType = null;
+                if (!string.IsNullOrWhiteSpace(dto.PaymentType))
+                {
+                    if (!Enum.TryParse(dto.PaymentType, true, out Enums.InvoicePaymentType parsedPayment))
+                        return new ResponseDTO { IsValid = false, Message = "Invalid payment type" };
+                    paymentType = parsedPayment;
+                }
+
+                Enums.InvoiceStatus? status = null;
+                if (!string.IsNullOrWhiteSpace(dto.Status))
+                {
+                    if (!Enum.TryParse(dto.Status, true, out Enums.InvoiceStatus parsedStatus))
+                        return new ResponseDTO { IsValid = false, Message = "Invalid invoice status" };
+                    status = parsedStatus;
+                }
+
+                DateTime? from = null;
+                if (!string.IsNullOrWhiteSpace(dto.FromDate))
+                {
+                    if (!DateTime.TryParse(dto.FromDate, out var parsedFrom))
+                        return new ResponseDTO { IsValid = false, Message = "Invalid from date" };
+                    from = parsedFrom;
+                }
+
+                DateTime? to = null;
+                if (!string.IsNullOrWhiteSpace(dto.ToDate))
+                {
+                    if (!DateTime.TryParse(dto.ToDate, out var parsedTo))
+                        return new ResponseDTO { IsValid = false, Message = "Invalid to date" };
+                    to = parsedTo;
+                }
+
+                var invoices = await _repo.GetFilteredAsync(type, paymentType, status, dto.SupplierId, dto.ClientId, dto.ProjectId, from, to);
+                var dtos = invoices.Select(MapInvoice).ToList();
+                return new ResponseDTO { IsValid = true, Data = dtos };
+            }
+            catch (Exception ex)
+            {
+                await _errors.LogErrorAsync(ex.Message, fn, ex.StackTrace ?? string.Empty, 0);
+                return new ResponseDTO { IsValid = false, Message = "Unexpected error happened" };
+            }
+        }
+
         public async Task<ResponseDTO> UpdateAsync(UpdateInvoiceDTO dto, int userId)
         {
             const string fn = nameof(UpdateAsync);
@@ -166,9 +230,11 @@ namespace ERP.Services.Invoices
                 var previousType = existing.Type;
                 var previousSupplierId = existing.SupplierId;
                 var previousTotal = existing.Total;
+                var previousSchedules = existing.PaymentSchedules.ToList();
 
                 var items = BuildItems(dto.Items, userId);
                 var totals = CalculateTotals(items, dto.Discount, dto.Tax, dto.PaidAmount);
+                var schedules = BuildSchedules(dto.PaymentSchedules, userId, dueDate);
 
                 existing.InvoiceNumber = dto.InvoiceNumber;
                 existing.InvoiceDate = invoiceDate;
@@ -189,6 +255,10 @@ namespace ERP.Services.Invoices
                 existing.Status = totals.Status;
 
                 await _repo.ReplaceItemsAsync(existing.Id, items, userId);
+                if (schedules.Any())
+                    await _repo.ReplaceSchedulesAsync(existing.Id, schedules, userId);
+                else if (previousSchedules.Any())
+                    await _repo.ReplaceSchedulesAsync(existing.Id, new List<InvoicePaymentSchedule>(), userId);
                 await _repo.UpdateAsync(existing, userId);
 
                 if (dto.Attachments?.Any() == true)
@@ -207,6 +277,132 @@ namespace ERP.Services.Invoices
                 await _errors.LogErrorAsync(ex.Message, fn, ex.StackTrace ?? string.Empty, userId);
                 return new ResponseDTO { IsValid = false, Message = "Unexpected error happened" };
             }
+        }
+
+        public async Task<ResponseDTO> GetDueRemindersAsync(InvoiceReminderFilterDTO dto)
+        {
+            const string fn = nameof(GetDueRemindersAsync);
+            try
+            {
+                var reminders = await BuildDueRemindersAsync(dto);
+                return new ResponseDTO { IsValid = true, Data = reminders };
+            }
+            catch (Exception ex)
+            {
+                await _errors.LogErrorAsync(ex.Message, fn, ex.StackTrace ?? string.Empty, 0);
+                return new ResponseDTO { IsValid = false, Message = "Unexpected error happened" };
+            }
+        }
+
+        public async Task<ResponseDTO> NotifyDueRemindersAsync(InvoiceReminderFilterDTO dto)
+        {
+            const string fn = nameof(NotifyDueRemindersAsync);
+            try
+            {
+                var reminders = await BuildDueRemindersAsync(dto);
+                await _notifications.BroadcastDueRemindersAsync(reminders);
+                return new ResponseDTO { IsValid = true, Data = reminders, Message = "Reminders broadcasted" };
+            }
+            catch (Exception ex)
+            {
+                await _errors.LogErrorAsync(ex.Message, fn, ex.StackTrace ?? string.Empty, 0);
+                return new ResponseDTO { IsValid = false, Message = "Unexpected error happened" };
+            }
+        }
+
+        public async Task<ResponseDTO> ExportAsync(InvoiceExportRequestDTO dto)
+        {
+            const string fn = nameof(ExportAsync);
+            try
+            {
+                var filter = dto.Filter ?? new InvoiceFilterDTO();
+                var filtered = await FilterAsync(filter);
+                if (!filtered.IsValid)
+                    return filtered;
+
+                var invoices = filtered.Data as List<InvoiceDTO> ?? new();
+                if (!invoices.Any())
+                    return new ResponseDTO { IsValid = false, Message = "No invoices found for the provided filter" };
+
+                var path = await _reportExporter.ExportInvoicesAsync(invoices, dto.Format, dto.Branding);
+                return new ResponseDTO { IsValid = true, Data = path, Message = "Export created" };
+            }
+            catch (Exception ex)
+            {
+                await _errors.LogErrorAsync(ex.Message, fn, ex.StackTrace ?? string.Empty, 0);
+                return new ResponseDTO { IsValid = false, Message = "Unexpected error happened" };
+            }
+        }
+
+        private async Task<List<InvoiceDueReminderDTO>> BuildDueRemindersAsync(InvoiceReminderFilterDTO dto)
+        {
+            var invoices = await _repo.GetAllWithDetailsAsync();
+            var today = DateTime.UtcNow.Date;
+            var horizon = dto.DaysAhead.HasValue ? today.AddDays(dto.DaysAhead.Value) : (DateTime?)null;
+
+            var reminders = new List<InvoiceDueReminderDTO>();
+
+            foreach (var inv in invoices)
+            {
+                if (inv.Total <= inv.PaidAmount)
+                    continue;
+
+                var nextSchedule = inv.PaymentSchedules
+                    .Where(s => !s.IsPaid)
+                    .OrderBy(s => s.DueDate)
+                    .FirstOrDefault();
+
+                DateTime? targetDate = null;
+                decimal? targetAmount = null;
+                var dueSource = "InvoiceDueDate";
+
+                if (nextSchedule != null)
+                {
+                    targetDate = nextSchedule.DueDate.Date;
+                    targetAmount = nextSchedule.Amount;
+                    dueSource = "Schedule";
+                }
+                else if (inv.DueDate.HasValue)
+                {
+                    targetDate = inv.DueDate.Value.Date;
+                    targetAmount = inv.Total - inv.PaidAmount;
+                }
+
+                if (targetDate == null)
+                    continue;
+
+                var daysUntil = (int)(targetDate.Value - today).TotalDays;
+                var isOverdue = targetDate.Value < today;
+
+                if (!dto.IncludeOverdue && isOverdue)
+                    continue;
+                if (horizon.HasValue && targetDate.Value > horizon.Value)
+                    continue;
+
+                reminders.Add(new InvoiceDueReminderDTO
+                {
+                    InvoiceId = inv.Id,
+                    InvoiceNumber = inv.InvoiceNumber,
+                    DueDate = inv.DueDate?.ToString("yyyy-MM-dd"),
+                    Total = inv.Total,
+                    PaidAmount = inv.PaidAmount,
+                    DaysUntilDue = daysUntil,
+                    IsOverdue = isOverdue,
+                    NextDueDate = targetDate?.ToString("yyyy-MM-dd"),
+                    NextDueAmount = targetAmount,
+                    NextDueIsOverdue = isOverdue,
+                    DueSource = dueSource,
+                    SupplierId = inv.SupplierId,
+                    ClientId = inv.ClientId,
+                    ProjectId = inv.ProjectId,
+                    Status = inv.Status.ToString()
+                });
+            }
+
+            return reminders
+                .OrderBy(r => r.IsOverdue ? -1 : r.DaysUntilDue)
+                .ThenBy(r => r.NextDueDate)
+                .ToList();
         }
 
         private async Task ApplyInventoryImpact(Invoice invoice, int userId, bool isUpdate = false, List<InvoiceItem>? previousItems = null, Enums.InvoiceType? previousType = null)
@@ -266,6 +462,34 @@ namespace ERP.Services.Invoices
             }).ToList();
         }
 
+        private List<InvoicePaymentSchedule> BuildSchedules(List<InvoicePaymentScheduleInputDTO> schedules, int userId, DateTime? defaultDue)
+        {
+            var list = new List<InvoicePaymentSchedule>();
+            if (schedules != null && schedules.Count > 0)
+            {
+                foreach (var schedule in schedules)
+                {
+                    if (!DateTime.TryParse(schedule.DueDate, out var due))
+                        continue;
+
+                    list.Add(new InvoicePaymentSchedule
+                    {
+                        DueDate = due.Date,
+                        Amount = schedule.Amount,
+                        IsPaid = schedule.IsPaid,
+                        PaidDate = schedule.IsPaid ? DateTime.UtcNow : null,
+                        Notes = schedule.Notes,
+                        CreatedBy = userId,
+                        UpdatedBy = userId,
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow
+                    });
+                }
+            }
+
+            return list;
+        }
+
         private InvoiceDTO MapInvoice(Invoice invoice)
         {
             return new InvoiceDTO
@@ -303,7 +527,15 @@ namespace ERP.Services.Invoices
                     Id = att.Id,
                     FileName = att.FileName,
                     FilePath = att.FilePath
-                }).ToList()
+                }).ToList(),
+                PaymentSchedules = invoice.PaymentSchedules.Select(ps => new InvoicePaymentScheduleDTO
+                {
+                    Id = ps.Id,
+                    Amount = ps.Amount,
+                    DueDate = ps.DueDate.ToString("yyyy-MM-dd"),
+                    IsPaid = ps.IsPaid,
+                    Notes = ps.Notes
+                }).OrderBy(p => p.DueDate).ToList()
             };
         }
 
