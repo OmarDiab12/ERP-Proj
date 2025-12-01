@@ -5,6 +5,7 @@ using ERP.Repositories.Interfaces.Inventory;
 using ERP.Repositories.Interfaces.Suppliers;
 using ERP.Helpers;
 using ERP.Services.Interfaces.Inventory;
+using ERP.Services.Interfaces.Notifications;
 
 namespace ERP.Services.Inventory
 {
@@ -14,13 +15,15 @@ namespace ERP.Services.Inventory
         private readonly ISupplierRepository _supplierRepo;
         private readonly IErrorRepository _errors;
         private readonly IFileStorageService _fileStorage;
+        private readonly INotificationService _notifications;
 
-        public InventoryService(IInventoryRepository repo, ISupplierRepository supplierRepo, IErrorRepository errors, IFileStorageService fileStorage)
+        public InventoryService(IInventoryRepository repo, ISupplierRepository supplierRepo, IErrorRepository errors, IFileStorageService fileStorage, INotificationService notifications)
         {
             _repo = repo;
             _supplierRepo = supplierRepo;
             _errors = errors;
             _fileStorage = fileStorage;
+            _notifications = notifications;
         }
 
         public async Task<ResponseDTO> CreateAsync(CreateInventoryItemDTO dto, int userId)
@@ -57,6 +60,7 @@ namespace ERP.Services.Inventory
                 }
 
                 await _repo.CreateAsync(entity, userId);
+                await NotifyLowStockAsync(new List<InventoryItem> { entity });
                 return new ResponseDTO { IsValid = true, Data = entity.Id, Message = "Inventory item created" };
             }
             catch (Exception ex)
@@ -132,21 +136,7 @@ namespace ERP.Services.Inventory
             const string fn = nameof(GetLowStockAsync);
             try
             {
-                var list = await _repo.GetAllAsync();
-                var dtos = list.Where(i => i.LowStockThreshold > 0 && i.Quantity <= i.LowStockThreshold)
-                    .Select(i => new InventoryItemDTO
-                    {
-                        Id = i.Id,
-                        Name = i.Name,
-                        Description = i.Description,
-                        PurchasePrice = i.PurchasePrice,
-                        SalePrice = i.SalePrice,
-                        Quantity = i.Quantity,
-                        LowStockThreshold = i.LowStockThreshold,
-                        PreferredSupplierId = i.PreferredSupplierId,
-                        ImageName = i.ImageName,
-                        ImagePath = i.ImagePath
-                    }).ToList();
+                var dtos = await BuildLowStockDTOsAsync();
 
                 return new ResponseDTO { IsValid = true, Data = dtos };
             }
@@ -195,6 +185,7 @@ namespace ERP.Services.Inventory
                 }
 
                 await _repo.UpdateAsync(entity, userId);
+                await NotifyLowStockAsync(new List<InventoryItem> { entity });
                 return new ResponseDTO { IsValid = true, Message = "Inventory item updated" };
             }
             catch (Exception ex)
@@ -202,6 +193,78 @@ namespace ERP.Services.Inventory
                 await _errors.LogErrorAsync(ex.Message, fn, ex.StackTrace ?? string.Empty, userId);
                 return new ResponseDTO { IsValid = false, Message = "Unexpected error happened" };
             }
+        }
+
+        public async Task<ResponseDTO> NotifyLowStockAsync()
+        {
+            const string fn = nameof(NotifyLowStockAsync);
+            try
+            {
+                var dtos = await BuildLowStockDTOsAsync();
+                var alerts = dtos.Select(ToLowStockAlert).ToList();
+
+                if (alerts.Any())
+                {
+                    await _notifications.BroadcastLowStockAsync(alerts);
+                    return new ResponseDTO { IsValid = true, Data = alerts, Message = "Low stock alerts broadcasted" };
+                }
+
+                return new ResponseDTO { IsValid = true, Data = alerts, Message = "No low stock items found" };
+            }
+            catch (Exception ex)
+            {
+                await _errors.LogErrorAsync(ex.Message, fn, ex.StackTrace ?? string.Empty, 0);
+                return new ResponseDTO { IsValid = false, Message = "Unexpected error happened" };
+            }
+        }
+
+        private static bool IsLowStock(InventoryItem item)
+        {
+            return item.LowStockThreshold > 0 && item.Quantity <= item.LowStockThreshold;
+        }
+
+        private static InventoryItemDTO ToDTO(InventoryItem i)
+        {
+            return new InventoryItemDTO
+            {
+                Id = i.Id,
+                Name = i.Name,
+                Description = i.Description,
+                PurchasePrice = i.PurchasePrice,
+                SalePrice = i.SalePrice,
+                Quantity = i.Quantity,
+                LowStockThreshold = i.LowStockThreshold,
+                PreferredSupplierId = i.PreferredSupplierId,
+                ImageName = i.ImageName,
+                ImagePath = i.ImagePath
+            };
+        }
+
+        private static InventoryLowStockAlertDTO ToLowStockAlert(InventoryItemDTO dto)
+        {
+            return new InventoryLowStockAlertDTO
+            {
+                ItemId = dto.Id,
+                Name = dto.Name,
+                Quantity = dto.Quantity,
+                LowStockThreshold = dto.LowStockThreshold
+            };
+        }
+
+        private async Task<List<InventoryItemDTO>> BuildLowStockDTOsAsync()
+        {
+            var list = await _repo.GetAllAsync();
+            return list.Where(IsLowStock).Select(ToDTO).ToList();
+        }
+
+        private async Task NotifyLowStockAsync(List<InventoryItem> items)
+        {
+            var alerts = items.Where(IsLowStock)
+                .Select(i => ToLowStockAlert(ToDTO(i)))
+                .ToList();
+
+            if (alerts.Any())
+                await _notifications.BroadcastLowStockAsync(alerts);
         }
     }
 }
