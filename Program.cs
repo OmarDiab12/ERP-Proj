@@ -5,16 +5,34 @@ using ERP.Repositories;
 using ERP.Repositories.Interfaces.Persons;
 using ERP.Repositories.Interfaces.ProjectsManagement;
 using ERP.Repositories.Interfaces.QuotationManagement;
+using ERP.Repositories.Interfaces.EngineeringOffice;
+using ERP.Repositories.Interfaces.Suppliers;
+using ERP.Repositories.Interfaces.Inventory;
+using ERP.Repositories.Interfaces.Invoices;
+using ERP.Services.Interfaces.Notifications;
 using ERP.Repositories.Persons;
 using ERP.Repositories.ProjectManagement;
 using ERP.Repositories.QuotationManagement;
+using ERP.Repositories.EngineeringOffice;
+using ERP.Repositories.Suppliers;
+using ERP.Repositories.Inventory;
+using ERP.Repositories.Invoices;
 using ERP.Services;
 using ERP.Services.Interfaces.Persons;
 using ERP.Services.Interfaces.ProjectManagement;
 using ERP.Services.Interfaces.QuotationManagement;
+using ERP.Services.Interfaces;
+using ERP.Services.EngineeringOffice;
+using ERP.Services.Notifications;
 using ERP.Services.Persons;
 using ERP.Services.ProjectManagement;
 using ERP.Services.QuotationManagement;
+using ERP.Services.Interfaces.Suppliers;
+using ERP.Services.Interfaces.Inventory;
+using ERP.Services.Interfaces.Invoices;
+using ERP.Services.Suppliers;
+using ERP.Services.Inventory;
+using ERP.Services.Invoices;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -30,6 +48,7 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddSignalR();
 
 #region Swagger
 builder.Services.AddSwaggerGen(options =>
@@ -150,9 +169,20 @@ builder.Services.AddScoped<IProjectAttachmentRepository, ProjectAttachmentReposi
 builder.Services.AddScoped<IProjectProfitShareRepository, ProjectProfitShareRepository>();
 builder.Services.AddScoped<IQuotaionAttachementRepository , QuotaionAttachementRepository>();
 builder.Services.AddScoped<IFileStorageService, FileStorageService>();
+builder.Services.AddScoped<IReportExportService, ReportExportService>();
 builder.Services.AddScoped<ICreateService , CreateService>();
 builder.Services.AddScoped<IGetService , GetService>();
 builder.Services.AddScoped<IUpdateService , UpdateService>();
+builder.Services.AddScoped<IEngineeringProjectRepository, EngineeringProjectRepository>();
+builder.Services.AddScoped<IEngineeringProjectAttachmentRepository, EngineeringProjectAttachmentRepository>();
+builder.Services.AddScoped<IEngineeringOfficeService, EngineeringOfficeService>();
+builder.Services.AddScoped<ISupplierRepository, SupplierRepository>();
+builder.Services.AddScoped<ISupplierService, SupplierService>();
+builder.Services.AddScoped<IInventoryRepository, InventoryRepository>();
+builder.Services.AddScoped<IInventoryService, InventoryService>();
+builder.Services.AddScoped<IInvoiceRepository, InvoiceRepository>();
+builder.Services.AddScoped<IInvoiceService, InvoiceService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
 
 #endregion
 
@@ -173,5 +203,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<ERP.Hubs.NotificationHub>("/hubs/notifications");
 
 app.Run();

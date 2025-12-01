@@ -6,6 +6,10 @@ using ERP.Models.Partners;
 using ERP.Models.Projects;
 using ERP.Models.ProjectsManagement;
 using ERP.Models.QoutationManagement;
+using ERP.Models.EngineeringOffice;
+using ERP.Models.InventoryManagement;
+using ERP.Models.InvoicesManagement;
+using ERP.Models.SuppliersManagement;
 using Microsoft.EntityFrameworkCore;
 
 namespace ERP.Models
@@ -37,6 +41,14 @@ namespace ERP.Models
         public DbSet<ProjectTask> ProjectTasks { get; set; }
         public DbSet<QuotationAttachement> QuotationAttachements { get; set; }
         public DbSet<ContactPayment> ContactPayments { get; set; }
+        public DbSet<EngineeringProject> EngineeringProjects { get; set; }
+        public DbSet<EngineeringProjectAttachment> EngineeringProjectAttachments { get; set; }
+        public DbSet<Supplier> Suppliers { get; set; }
+        public DbSet<InventoryItem> InventoryItems { get; set; }
+        public DbSet<Invoice> Invoices { get; set; }
+        public DbSet<InvoiceItem> InvoiceItems { get; set; }
+        public DbSet<InvoiceAttachment> InvoiceAttachments { get; set; }
+        public DbSet<InvoicePaymentSchedule> InvoicePaymentSchedules { get; set; }
 
         #endregion
 
