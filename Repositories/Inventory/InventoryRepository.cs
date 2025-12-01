@@ -2,6 +2,7 @@ using ERP.Models.InventoryManagement;
 using ERP.Repositories.Interfaces.Inventory;
 using ERP.Repositories;
 using Microsoft.EntityFrameworkCore;
+using ERP.Models;
 
 namespace ERP.Repositories.Inventory
 {

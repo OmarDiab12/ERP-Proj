@@ -3,6 +3,7 @@ using ERP.Models.InvoicesManagement;
 using ERP.Repositories.Interfaces.Invoices;
 using ERP.Repositories;
 using Microsoft.EntityFrameworkCore;
+using ERP.Models;
 
 namespace ERP.Repositories.Invoices
 {
