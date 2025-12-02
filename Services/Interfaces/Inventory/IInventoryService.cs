@@ -9,5 +9,6 @@ namespace ERP.Services.Interfaces.Inventory
         Task<ResponseDTO> GetAsync(int id);
         Task<ResponseDTO> GetAllAsync();
         Task<ResponseDTO> GetLowStockAsync();
+        Task<ResponseDTO> NotifyLowStockAsync();
     }
 }
