@@ -9,7 +9,7 @@ namespace ERP.Migrations
 {
     /// <inheritdoc />
     [DbContext(typeof(ERPDBContext))]
-    [Migration("20251205001000_PrivatePartnershipsModule", "8.0.19")]
+    [Migration("20251205001000_PrivatePartnershipsModule")]
     public partial class PrivatePartnershipsModule : Migration
     {
         /// <inheritdoc />
