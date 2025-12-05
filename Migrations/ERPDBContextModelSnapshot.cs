@@ -1517,6 +1517,142 @@ namespace ERP.Migrations
                     b.ToTable("QuotationItems");
                 });
 
+            modelBuilder.Entity("ERP.Models.PrivatePartnerships.PrivatePartnershipPartnerShare", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("ContributionAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<double>("ContributionPercentage")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("float(5)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("PartnerName")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
+
+                    b.Property<int>("ProjectId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UpdatedBy")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProjectId");
+
+                    b.ToTable("PrivatePartnershipPartnerShares");
+                });
+
+            modelBuilder.Entity("ERP.Models.PrivatePartnerships.PrivatePartnershipProject", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UpdatedBy")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("PrivatePartnershipProjects");
+                });
+
+            modelBuilder.Entity("ERP.Models.PrivatePartnerships.PrivatePartnershipTransaction", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Note")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime>("OccurredAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("PartnerShareId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProjectId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TransactionType")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UpdatedBy")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PartnerShareId");
+
+                    b.HasIndex("ProjectId");
+
+                    b.ToTable("PrivatePartnershipTransactions");
+                });
+
             modelBuilder.Entity("ERP.Models.SuppliersManagement.Supplier", b =>
                 {
                     b.Property<int>("Id")
@@ -1927,6 +2063,34 @@ namespace ERP.Migrations
                     b.Navigation("Quotation");
                 });
 
+            modelBuilder.Entity("ERP.Models.PrivatePartnerships.PrivatePartnershipPartnerShare", b =>
+                {
+                    b.HasOne("ERP.Models.PrivatePartnerships.PrivatePartnershipProject", "Project")
+                        .WithMany("PartnerShares")
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Project");
+                });
+
+            modelBuilder.Entity("ERP.Models.PrivatePartnerships.PrivatePartnershipTransaction", b =>
+                {
+                    b.HasOne("ERP.Models.PrivatePartnerships.PrivatePartnershipPartnerShare", "PartnerShare")
+                        .WithMany("Transactions")
+                        .HasForeignKey("PartnerShareId");
+
+                    b.HasOne("ERP.Models.PrivatePartnerships.PrivatePartnershipProject", "Project")
+                        .WithMany("Transactions")
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("PartnerShare");
+
+                    b.Navigation("Project");
+                });
+
             modelBuilder.Entity("ERP.Models.Brokers.Broker", b =>
                 {
                     b.Navigation("Comissions");
@@ -1999,6 +2163,18 @@ namespace ERP.Migrations
                     b.Navigation("QuotationAttachements");
 
                     b.Navigation("QuotationItems");
+                });
+
+            modelBuilder.Entity("ERP.Models.PrivatePartnerships.PrivatePartnershipPartnerShare", b =>
+                {
+                    b.Navigation("Transactions");
+                });
+
+            modelBuilder.Entity("ERP.Models.PrivatePartnerships.PrivatePartnershipProject", b =>
+                {
+                    b.Navigation("PartnerShares");
+
+                    b.Navigation("Transactions");
                 });
 
             modelBuilder.Entity("ERP.Models.SuppliersManagement.Supplier", b =>

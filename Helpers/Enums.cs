@@ -81,5 +81,12 @@
             Cash = 1,
             Credit = 2
         }
+
+        public enum PrivatePartnershipTransactionType
+        {
+            Income = 1,
+            Expense = 2,
+            PartnerWithdrawal = 3
+        }
     }
 }
