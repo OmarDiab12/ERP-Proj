@@ -1,4 +1,6 @@
 using System;
+using ERP.Models;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -6,6 +8,8 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace ERP.Migrations
 {
     /// <inheritdoc />
+    [DbContext(typeof(ERPDBContext))]
+    [Migration("20251205001000_PrivatePartnershipsModule")]
     public partial class PrivatePartnershipsModule : Migration
     {
         /// <inheritdoc />

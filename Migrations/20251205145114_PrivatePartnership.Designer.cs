@@ -4,6 +4,7 @@ using ERP.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ERP.Migrations
 {
     [DbContext(typeof(ERPDBContext))]
-    partial class ERPDBContextModelSnapshot : ModelSnapshot
+    [Migration("20251205145114_PrivatePartnership")]
+    partial class PrivatePartnership
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1761,15 +1764,15 @@ namespace ERP.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2025, 12, 5, 15, 3, 53, 906, DateTimeKind.Utc).AddTicks(1538),
+                            CreatedAt = new DateTime(2025, 12, 5, 14, 51, 13, 472, DateTimeKind.Utc).AddTicks(7986),
                             CreatedBy = 0,
                             DisplayName = "Admin",
                             Email = "admin@erp.com",
                             FullName = "System Admin",
                             IsDeleted = false,
-                            PasswordHash = "$2a$11$zCdcY/FpYTZICGCZ2FKr/Ov3BsYe9fwZOMxRMz82EwRsbHoG.FK/u",
+                            PasswordHash = "$2a$11$tdXasxqO4qZn8HQghHnoCeam9NRaYjEgGFbjKhuHHn72W3Igy.bE6",
                             PhoneNumber = "",
-                            UpdatedAt = new DateTime(2025, 12, 5, 15, 3, 53, 906, DateTimeKind.Utc).AddTicks(1544),
+                            UpdatedAt = new DateTime(2025, 12, 5, 14, 51, 13, 472, DateTimeKind.Utc).AddTicks(7992),
                             UpdatedBy = 0
                         });
                 });
