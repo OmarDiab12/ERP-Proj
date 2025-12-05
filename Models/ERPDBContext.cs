@@ -3,6 +3,7 @@ using ERP.Models.ClientsManagement;
 using ERP.Models.ContractorsManagement;
 using ERP.Models.Employees;
 using ERP.Models.Partners;
+using ERP.Models.PrivatePartnerships;
 using ERP.Models.Projects;
 using ERP.Models.ProjectsManagement;
 using ERP.Models.QoutationManagement;
@@ -49,6 +50,9 @@ namespace ERP.Models
         public DbSet<InvoiceItem> InvoiceItems { get; set; }
         public DbSet<InvoiceAttachment> InvoiceAttachments { get; set; }
         public DbSet<InvoicePaymentSchedule> InvoicePaymentSchedules { get; set; }
+        public DbSet<PrivatePartnershipProject> PrivatePartnershipProjects { get; set; }
+        public DbSet<PrivatePartnershipPartnerShare> PrivatePartnershipPartnerShares { get; set; }
+        public DbSet<PrivatePartnershipTransaction> PrivatePartnershipTransactions { get; set; }
 
         #endregion
 
