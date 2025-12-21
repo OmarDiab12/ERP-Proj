@@ -51,5 +51,13 @@ namespace ERP.Controllers
             var res = await _clients.EditClient(dto, userId ?? 0);
             return res.IsValid ? Ok(res) : BadRequest(res);
         }
+
+        [HttpPost("delete-{clientId}")]
+        public async Task<IActionResult> Delete([FromQuery] int clientId)
+        {
+            int? userId = PublicFunctions.GetUserId(User);
+            var res = await _clients.DeleteClient(clientId, userId ?? 0);
+            return res.IsValid ? Ok(res) : BadRequest(res);
+        }
     }
 }

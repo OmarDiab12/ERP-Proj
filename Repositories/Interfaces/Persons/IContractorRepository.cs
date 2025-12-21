@@ -15,5 +15,6 @@ namespace ERP.Repositories.Interfaces.Persons
         Task<List<ContactPayment>> GetContractPaymentsAsync(int contractId);
         Task<bool> DeletePaymentAsync(int paymentId, int userId);
         Task SyncPaymentsAsync(List<ContactPayment> incomingPayments, int contractId, int userId);
+        Task<List<ContractOfContractor>> GetAllContracts();
     }
 }

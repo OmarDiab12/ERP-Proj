@@ -48,7 +48,10 @@ namespace ERP.DTOs.Projects
         public int Id { get; set; }
         public string ProjectName { get; set; }
         public string Description { get; set; }
+        public int Clientid { get; set; }
         public string ClientName { get; set; }
+        public int brokerid { get; set; }
+        public decimal brokerpercent { get; set; }
         public string BrokerName { get; set; }
         public string Status { get; set; }
         public string StartDate { get; set; }

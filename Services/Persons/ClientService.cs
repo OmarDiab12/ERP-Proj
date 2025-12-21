@@ -1,22 +1,27 @@
 ﻿using ERP.DTOs.Clients;
 using ERP.Models.ClientsManagement;
 using ERP.Repositories.Interfaces.Persons;
+using ERP.Repositories.Interfaces.ProjectsManagement;
 using ERP.Services.Interfaces.Persons;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.Configuration;
 
 public class ClientService : IClientService
 {
     private readonly IClientRepository _clientRepository;
     private readonly IErrorRepository _errorRepository;
+    private readonly IProjectRepository _projectRepository;
     private readonly string _storagePath;
 
     public ClientService(
         IClientRepository clientRepository,
         IErrorRepository errorRepository,
-        IConfiguration configuration )
+        IConfiguration configuration,
+        IProjectRepository projectRepository)
     {
         _clientRepository = clientRepository;
         _errorRepository = errorRepository;
+        _projectRepository = projectRepository;
         _storagePath = configuration["StoragePath"] ?? "wwwroot/uploads";
 
     }
@@ -142,6 +147,31 @@ public class ClientService : IClientService
         try
         {
             var clients = await _clientRepository.GetAllAsync();
+            
+            
+            var now = DateTime.UtcNow; // or DateTime.Now – be consistent system-wide
+            var monthStart = new DateTime(now.Year, now.Month, 1);
+            var monthEnd = monthStart.AddMonths(1);
+            var lastMonthStart = monthStart.AddMonths(-1);
+
+            var clientsInThisMonth = clients
+                .Where(c => c.Projects.Any())
+                .Where(c =>
+                    c.Projects.Min(p => p.StartDate) >= monthStart &&
+                    c.Projects.Min(p => p.StartDate) < monthEnd).ToList();
+
+            var activeClients = clients
+                .Where(c => c.Projects.Any(p =>
+                    p.StartDate < monthEnd &&
+                    (p.EndDate == null || p.EndDate >= monthStart))).ToList();
+
+            var clientNotActive = clients
+                    .Where(c => c.Projects.Any()) // had projects
+                    .Where(c =>c.Projects.All(p =>
+                            p.EndDate != null &&
+                            p.EndDate < monthStart &&        // no project active this month
+                            p.EndDate >= lastMonthStart)).ToList();
+
 
             var result = new List<ClientDTO>();
             foreach (var client in clients)
@@ -168,7 +198,18 @@ public class ClientService : IClientService
                 });
             }
 
-            return new ResponseDTO { IsValid = true, Data = result };
+            
+
+            var dataofCards = new
+            {
+                Data = result,
+                TotalClients = result.Count,
+                ClientsofThisMonth = clientsInThisMonth,
+                ActiveClients = activeClients,
+                NonActiveClients = clientNotActive
+            };
+
+            return new ResponseDTO { IsValid = true, Data = dataofCards };
         }
         catch (Exception ex)
         {
@@ -176,4 +217,66 @@ public class ClientService : IClientService
             return new ResponseDTO { IsValid = false, Message = "Unexpected error happened" };
         }
     }
+
+    public async Task<ResponseDTO> DeleteClient(int clientId, int createdBy)
+    {
+        const string fn = nameof(DeleteClient);
+
+        try
+        {
+            // 1️⃣ Check client existence
+            var client = await _clientRepository.GetByIdAsync(clientId);
+            if (client == null)
+            {
+                return new ResponseDTO
+                {
+                    IsValid = false,
+                    Message = "Client not found"
+                };
+            }
+
+            // 2️⃣ Check active projects
+            var activeProjects = await _projectRepository
+                .GetActiveProjectsAsync();
+
+            bool hasActiveProjects = activeProjects
+                .Any(p => p.ClientId == clientId);
+
+            if (hasActiveProjects)
+            {
+                return new ResponseDTO
+                {
+                    IsValid = false,
+                    Message = "Client has active projects and cannot be deleted"
+                };
+            }
+
+            // 3️⃣ Soft delete client
+            var result = await _clientRepository
+                .SoftDeleteAsync(clientId, createdBy);
+
+            return new ResponseDTO
+            {
+                IsValid = true,
+                Data = result,
+                Message = "Client deleted successfully"
+            };
+        }
+        catch (Exception ex)
+        {
+            await _errorRepository.LogErrorAsync(
+                ex.Message,
+                fn,
+                ex.StackTrace ?? string.Empty,
+                createdBy
+            );
+
+            return new ResponseDTO
+            {
+                IsValid = false,
+                Message = "Unexpected error happened"
+            };
+        }
+    }
+
 }

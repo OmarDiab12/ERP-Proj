@@ -136,7 +136,7 @@ namespace ERP.Services.Persons
             const string fn = nameof(GetAllEmployeesAsync);
             try
             {
-                var employees = await _employeeRepo.Query()
+                var employees = await _employeeRepo.Query().Where(e => !e.IsDeleted)
                     .Include(e => e.EmployeeTransactions)
                     .OrderBy(e => e.Name)
                     .ToListAsync();

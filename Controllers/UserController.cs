@@ -11,13 +11,8 @@ namespace ERP.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserService _users;
-<<<<<<< HEAD
         public UserController(IUserService users) => _users = users;
 
-=======
-
-        public UserController(IUserService users) => _users = users;
->>>>>>> aa3343d400ec576b57971ead435e9ce8afb0a0d2
 
         [HttpPost("register")]
         [Authorize]

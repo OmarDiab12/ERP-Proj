@@ -1,4 +1,5 @@
 ﻿using ERP.DTOs.Projects;
+using ERP.Models.Brokers;
 using ERP.Models.Projects;
 using ERP.Repositories.Interfaces.ProjectsManagement;
 using ERP.Services.Interfaces.ProjectManagement;
@@ -33,7 +34,10 @@ namespace ERP.Services.ProjectManagement
                     Id = project.Id,
                     ProjectName = project.ProjectName,
                     Description = project.Description,
+                    Clientid = project.ClientId ?? 0,
                     ClientName = project.Client?.Name ?? "N/A",
+                    brokerid = project.BrokerId ?? 0,
+                    brokerpercent = project.BrokerComissions.Where(c => c.BrokerId == project.BrokerId && c.ProjectId == project.Id).Select(c=>c.PercentofTotal).FirstOrDefault(),
                     BrokerName = project.Broker?.Name ?? "N/A",
                     Status = project.Status.ToString(),
                     StartDate = project.StartDate.ToString("yyyy-MM-dd"),

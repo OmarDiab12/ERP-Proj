@@ -117,6 +117,18 @@ namespace ERP.Services.Persons
             {
                 var contractora = await _contractorRepository.GetAllAsync();
 
+
+                var allcontracts = await _contractorRepository.GetAllContracts();
+                var now = DateTime.UtcNow; // or Now – be consistent system-wide
+
+
+                var activeContracts = allcontracts.Where(c => c.StartDate <= now && (c.EndDate == null || c.EndDate >= now)).ToList();
+
+                var latePaymentsTotal = allcontracts.Where(c => c.StartDate <= now && c.RemainingBalance > 0 ).Sum(c => c.RemainingBalance);
+
+                var totalContractsAmount = allcontracts.Sum(c => c.ContractAmount);
+
+
                 var result = new List<ContractorDTO>();
                 foreach (var contractor in contractora)
                 {
@@ -141,7 +153,18 @@ namespace ERP.Services.Persons
                     });
                 }
 
-                return new ResponseDTO { IsValid = true, Data = result };
+                return new ResponseDTO
+                {
+                    IsValid = true,
+                    Data = new
+                    {
+                        Contractors = result,
+                        TotalContractors = contractora.Count(),
+                        ActiveContracts = activeContracts,
+                        LatePaymentsTotal = latePaymentsTotal,
+                        TotalContractsAmount = totalContractsAmount
+                    }
+                };
             }
             catch (Exception ex)
             {

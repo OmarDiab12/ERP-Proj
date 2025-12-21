@@ -8,5 +8,6 @@ namespace ERP.Services.Interfaces.Persons
         Task<ResponseDTO> EditClient(EditClientDTO dto, int updatedBy);
         Task<ResponseDTO> GetClientAsync(int clientId);
         Task<ResponseDTO> GetAllClientsAsync();
+        Task<ResponseDTO> DeleteClient(int clientId, int createdBy);
     }
 }

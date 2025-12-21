@@ -171,6 +171,18 @@ namespace ERP.Repositories.Persons
 
             await _context.SaveChangesAsync();
         }
+
+        public async Task<List<ContractOfContractor>> GetAllContracts()
+        {
+            try
+            {
+                return await _context.ContractOfContracts.ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
     }
 
 }
