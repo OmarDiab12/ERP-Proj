@@ -37,6 +37,8 @@ using ERP.Services.Interfaces.Invoices;
 using ERP.Services.Suppliers;
 using ERP.Services.Inventory;
 using ERP.Services.Invoices;
+using ERP.Services.Interfaces.Tasks;
+using ERP.Services.Tasks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -191,6 +193,7 @@ builder.Services.AddScoped<IInventoryService, InventoryService>();
 builder.Services.AddScoped<IInvoiceRepository, InvoiceRepository>();
 builder.Services.AddScoped<IInvoiceService, InvoiceService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<ITaskService, TaskService>();
 
 #endregion
 

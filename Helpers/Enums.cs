@@ -58,7 +58,28 @@
             New,
             InProgress,
             Completed,
-            Delayed
+            Postponed,
+            Canceled
+        }
+
+        public enum TaskType
+        {
+            Accounting,
+            Administrative,
+            Field
+        }
+
+        public enum TaskReferenceType
+        {
+            Project,
+            Client,
+            Supplier,
+            Partner,
+            Contractor,
+            Employee,
+            Invoice,
+            Quotation,
+            Other
         }
 
         public enum InvoiceType

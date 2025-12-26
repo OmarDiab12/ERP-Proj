@@ -74,12 +74,24 @@ namespace ERP.Services.ProjectManagement
                     Tasks = project.ProjectTasks
                         .Select(t => new ProjectTaskDto
                         {
+                            Id = t.Id,
                             ProjectId = project.Id,
                             Title = t.Title,
                             Description = t.Description,
+                            TaskType = t.TaskType,
                             Priority = t.Priority,
+                            Status = t.Status,
+                            ReferenceType = t.ReferenceType,
+                            ReferenceId = t.ReferenceId,
+                            StartDate = t.StartDate.ToString("yyyy-MM-dd"),
                             DueDate = t.DueDate?.ToString("yyyy-MM-dd"),
-                            AssignedToName = t.AssignedTo.Name
+                            AssignedToEmployeeId = t.AssignedToId,
+                            AssignedPartnerId = t.AssignedPartnerId,
+                            AssignedToName = t.AssignedTo != null
+                                ? t.AssignedTo.Name
+                                : t.AssignedPartner != null
+                                    ? t.AssignedPartner.FullName
+                                    : null
                         }).ToList()
                 };
 
