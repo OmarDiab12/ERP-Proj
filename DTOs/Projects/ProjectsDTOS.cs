@@ -113,10 +113,15 @@ namespace ERP.DTOs.Projects
         public int ProjectId { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
+        public TaskType TaskType { get; set; }
         public TaskPriority Priority { get; set; }
         public Helpers.Enums.TaskStatus Status { get; set; }
+        public TaskReferenceType? ReferenceType { get; set; }
+        public int? ReferenceId { get; set; }
         public string StartDate { get; set; }
         public string? DueDate { get; set; }
+        public int? AssignedToEmployeeId { get; set; }
+        public int? AssignedPartnerId { get; set; }
         public string? AssignedToName { get; set; }
     }
 }

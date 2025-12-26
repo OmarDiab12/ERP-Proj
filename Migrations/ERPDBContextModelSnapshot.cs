@@ -1451,6 +1451,9 @@ namespace ERP.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int?>("AssignedPartnerId")
+                        .HasColumnType("int");
+
                     b.Property<int?>("AssignedToId")
                         .HasColumnType("int");
 
@@ -1473,13 +1476,22 @@ namespace ERP.Migrations
                     b.Property<int>("Priority")
                         .HasColumnType("int");
 
-                    b.Property<int>("ProjectId")
+                    b.Property<int?>("ProjectId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ReferenceId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ReferenceType")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TaskType")
                         .HasColumnType("int");
 
                     b.Property<string>("Title")
@@ -1493,6 +1505,8 @@ namespace ERP.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AssignedPartnerId");
 
                     b.HasIndex("AssignedToId");
 
@@ -2042,13 +2056,17 @@ namespace ERP.Migrations
                         .WithMany()
                         .HasForeignKey("AssignedToId");
 
+                    b.HasOne("ERP.Models.Partners.Partner", "AssignedPartner")
+                        .WithMany()
+                        .HasForeignKey("AssignedPartnerId");
+
                     b.HasOne("ERP.Models.Projects.Project", "Project")
                         .WithMany("ProjectTasks")
-                        .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ProjectId");
 
                     b.Navigation("AssignedTo");
+
+                    b.Navigation("AssignedPartner");
 
                     b.Navigation("Project");
                 });
